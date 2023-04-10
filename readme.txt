@@ -1,0 +1,1 @@
+Aplicação Web IOT para controlo de uma Smart Home para controlo de sensores, entretenimento e segurança acessível em computador e dispositivo móvel
