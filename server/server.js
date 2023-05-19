@@ -37,8 +37,25 @@ try {
 app.get('/', (req, res) => res.send('Hello World!'))
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
+////////////////////////////////////////////////// Registo/Login //////////////////////////////////////////////////
+app.post('/register', function (req, res) {
+  console.log(req.body);
+  var user = {username: req.body.username, password: req.body.password, email: req.body.email}
+  //usar o firebase para guardar o user
 
-////////////////////////////////////////////////// Funções //////////////////////////////////////////////////
+  res.send('User registered ' + user);
+})
+
+app.post('/login', function (req, res) { 
+  console.log(req.body);
+  var user = {username: req.body.username, password: req.body.password}
+  //usar cookies para manter a sessão iniciada ´
+  
+  res.send('User logged in ' + user);
+})
+
+
+////////////////////////////////////////////////// Funções Sensores Related //////////////////////////////////////////////////
 // Receber dados do tópico temperatura e guardar no Firestore (Tudo numa função ou separadas ????? )
 // Utilizar JSON.parse para converter a string recebida em JSON (tem de se enviar como JSON do arduino)
 client.on('message', (topic, message) => {
