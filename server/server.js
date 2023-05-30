@@ -2,26 +2,48 @@
 const express = require('express')
 const app = express()
 const port = 3000
+
 // Firebase
 const admin = require('firebase-admin');
 const serviceAccount = require('./iottesting-3b1e7-firebase-adminsdk-u0mzd-2c24538b0a.json');
+
 // MQTT Mosquitto
 const mqtt = require('mqtt');
-const mqttServer = 'mqtt://IP_DO_BROKER';
-const mqttUser = 'USUARIO_MQTT';
-const mqttPassword = 'SENHA_MQTT';
+const mqttServer = 'mqtt://127.0.0.1:1890';
+const mqttUser = 'roger';
+const mqttPassword = 'password';
 
-// Inicialização da Comunicação com o broker MQTT
-try {
-  const client = mqtt.connect(mqttServer, {
-    username: mqttUser,
-    password: mqttPassword
-  });
-  console.log("connected flag  " + client.connected);
-} catch (error) {
-  console.log("Mosquitto Connection error  " + error);
-}
 
+const client = mqtt.connect(mqttServer);
+// Inicialização da Comunicação com o broker MQTT e subscrição aos tópicos
+
+client.on("connect",function(){	
+  console.log("connected");
+  client.subscribe('temperatura','luminosidade','movimento','luzes','fogo', console.log);
+ // client.publish('temperatura', '20');
+})
+
+client.on('message', function(topic, message, packet){
+  console.log("message is "+ message);
+  console.log("topic is "+ topic);
+  if(topic == "temperatura"){
+
+  }else if(topic == "luminosidade"){
+    
+  }else if(topic == "movimento"){
+    
+  }else if(topic == "luzes"){
+    
+  }else if(topic == "fogo"){
+    
+  }
+  
+})
+
+client.on("error",function(error){
+  console.log("Can't connect" + error);
+  client.reconnect();
+});
 
 //Inicialização da Comunicação com o Firestore
 try {
@@ -55,19 +77,27 @@ app.post('/login', function (req, res) {
 })
 
 
-////////////////////////////////////////////////// Funções Sensores Related //////////////////////////////////////////////////
+////////////////////////////////////////////////// Funções Sensores Related /////////////////////////////////////////
 // Receber dados do tópico temperatura e guardar no Firestore (Tudo numa função ou separadas ????? )
 // Utilizar JSON.parse para converter a string recebida em JSON (tem de se enviar como JSON do arduino)
-client.on('message', (topic, message) => {
-  if (topic === 'temperatura') {
-    console.log('Temperatura: ' + message.toString() + '°C');
-    db.collection('temperatura').add({
-      temperatura: message.toString(),
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      username: 'admin'
-    });
-  }
-});
+client.publish('temperatura', '20');
+
+////////////////////////////////////////////////// Temperatura Related /////////////////////////////////////////
+app.get('/temperature', function (req, res) {
+  //ler do firestore a temperatura
+
+
+  res.send('Temperature is ' + temperature);
+})
+
+app.post('/temperature', function (req, res) {
+  //usar o firebase para guardar a temperatura
+
+  res.send('Temperature is ' + temperature);
+})
+
+
+///////////////////////////////////////////////// Windows Related //////////////////////////////////////////////////
 
 //Alterar estado das janelas baseado no seu ID
 app.post('/ChangeWindowState', function (req, res) {
@@ -87,6 +117,8 @@ app.post('/WindowsDivision', function (req, res) {
   res.send('State changed to ' + state);
 })
 
+
+//////////////////////////////////////////// Lights Related //////////////////////////////////////////////////
 //Alterar estado das luzes baseado no seu ID
 app.post('/ChangeLightState', function (req, res) {
   var state = {state: req.body.state, lightID: req.body.lightID}
@@ -100,6 +132,18 @@ app.post('/ChangeLightState', function (req, res) {
 app.post('/LightsDivision', function (req, res) {
   var state = {mode: req.body.mode, division: req.body.division}
   var topic = "LightsDivision";
-  client.publish(topic, mode);
+  client.publish(topic, state);
   res.send('Mode changed to ' + mode);
+})
+
+///////////////////////////////////////////// Fire Related //////////////////////////////////////////////////
+//Ler estado do fogo
+app.get('/FireState', function (req, res) {
+  
+})
+
+///////////////////////////////////////////// Motion Related //////////////////////////////////////////////////
+//Ler estado do movimento (tentar fazer com que dependendo do estado de segurança, ativar o buzzer ou apenas enviar notificação)
+app.get('/MotionState', function (req, res) {
+  
 })
