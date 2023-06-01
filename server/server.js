@@ -3,9 +3,14 @@ const express = require('express')
 const app = express()
 const port = 3000
 
+//Utility functions
+const ValidateEmail = require('./util.js');
+
 // Firebase
 const admin = require('firebase-admin');
+
 const serviceAccount = require('./iottesting-3b1e7-firebase-adminsdk-u0mzd-2c24538b0a.json');
+
 
 // MQTT Mosquitto
 const mqtt = require('mqtt');
@@ -56,26 +61,84 @@ try {
   console.log("Firestore Connection error  " + error);
 }
 
+const auth = admin.auth();
+const database = admin.database();
+
 app.get('/', (req, res) => res.send('Hello World!'))
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
-////////////////////////////////////////////////// Registo/Login //////////////////////////////////////////////////
+////////////////////////////////////////////////// Registo/Login/Logout //////////////////////////////////////////////////
+auth.onAuthStateChanged(user => {
+  if(user){
+    console.log('User logged in');
+  }else{
+    console.log('User logged out');
+  }
+})
+
 app.post('/register', function (req, res) {
   console.log(req.body);
   var user = {username: req.body.username, password: req.body.password, email: req.body.email}
-  //usar o firebase para guardar o user
+  
+  //usar o firebase para guardar o user  -- Testar
+  if(ValidateEmail(user.email)){
+    
+    auth.createUserWithEmailAndPassword(user.email, user.password).then(function(){
+      var user = auth.currentUser;
+      
+      var databaseRef = database.ref('users/' + user.uid);
+      
+      var user_Data = {
+        email: user.email,
+        username: user.username,
+        password: user.password,
+        lastLogin: Date.now()
+      }
 
+      databaseRef.set(user_Data);
+      res.status(200).send('User registered ' + user);
+    }).catch(function(error){
+      res.send('Error registering user ' + error);
+    })
+
+  }else{
+    res.send('Invalid email');
+  }
   res.send('User registered ' + user);
 })
 
 app.post('/login', function (req, res) { 
-  console.log(req.body);
-  var user = {username: req.body.username, password: req.body.password}
-  //usar cookies para manter a sessão iniciada ´
+  try {
+
+    auth.signInWithEmailAndPassword(req.body.email, req.body.password).then(function(){
+      var user = auth.currentUser; 
+      var databaseRef = database.ref('users/' + user.uid);
+        
+        var user_Data = {
+          lastLogin: Date.now()
+        }
   
-  res.send('User logged in ' + user);
+        databaseRef.update(user_Data);
+  
+      res.status(200).send('User logged in ' + user);
+    }).catch(function(error){
+      res.status.apply(400).send('Error logging in ' + error);
+    })
+
+  } catch (error) {
+    res.status(400).send('Error logging in ' + error);
+  }
 })
 
+app.post('/logout', function (req, res) { 
+
+  try {
+    auth.signOut()
+  } catch (error) {
+    console.log('Error logging out ' + error);
+  }
+
+})
 
 ////////////////////////////////////////////////// Funções Sensores Related /////////////////////////////////////////
 // Receber dados do tópico temperatura e guardar no Firestore (Tudo numa função ou separadas ????? )
