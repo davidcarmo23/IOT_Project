@@ -3,9 +3,6 @@ const express = require('express')
 const app = express()
 const port = 3000
 
-//Utility functions
-const ValidateEmail = require('./util.js');
-
 // Firebase
 const admin = require('firebase-admin');
 
@@ -22,25 +19,78 @@ const mqttPassword = 'password';
 const client = mqtt.connect(mqttServer);
 // Inicialização da Comunicação com o broker MQTT e subscrição aos tópicos
 
+/*
 client.on("connect",function(){	
   console.log("connected");
   client.subscribe('temperatura','luminosidade','movimento','luzes','fogo', console.log);
- // client.publish('temperatura', '20');
+  
 })
 
+//Por ACABAR
 client.on('message', function(topic, message, packet){
   console.log("message is "+ message);
   console.log("topic is "+ topic);
+
+  var user = auth.currentUser;
+
   if(topic == "temperatura"){
 
-  }else if(topic == "luminosidade"){
+    try {
+      var databaseRef = database.ref('users/' + user.uid + '/temperatura');
+    } catch (error) {
+      console.log("Error getting user " + error);
+    }
+
+  }
+
+  if(topic == "luminosidade"){
+
+    try {
+      var databaseRef = database.ref('users/' + user.uid + '/luminosidade');
+    } catch (error) {
+      console.log("Error getting user " + error);
+    }
+ 
+  }
+
+  if(topic == "movimento"){
+
+    try {
+      var databaseRef = database.ref('users/' + user.uid + '/movimento');
+    } catch (error) {
+      console.log("Error getting user " + error);
+    }
+
+  }
+
+  if(topic == "luzes"){
     
-  }else if(topic == "movimento"){
-    
-  }else if(topic == "luzes"){
-    
-  }else if(topic == "fogo"){
-    
+    try {
+      var databaseRef = database.ref('users/' + user.uid + '/luzes');
+    } catch (error) {
+      console.log("Error getting user " + error);
+    }
+
+  }
+
+  if(topic == "fogo"){
+
+    try {
+      var databaseRef = database.ref('users/' + user.uid + '/fogo');
+    } catch (error) {
+      console.log("Error getting user " + error);
+    }
+
+  }
+
+  if(topic == "humidade"){
+
+    try {
+      var databaseRef = database.ref('users/' + user.uid + '/humidade');
+    } catch (error) {
+      console.log("Error getting user " + error);
+    }
+
   }
   
 })
@@ -49,6 +99,7 @@ client.on("error",function(error){
   console.log("Can't connect" + error);
   client.reconnect();
 });
+*/
 
 //Inicialização da Comunicação com o Firestore
 try {
@@ -61,71 +112,71 @@ try {
   console.log("Firestore Connection error  " + error);
 }
 
-const auth = admin.auth();
-const database = admin.database();
-
-app.get('/', (req, res) => res.send('Hello World!'))
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
-////////////////////////////////////////////////// Registo/Login/Logout //////////////////////////////////////////////////
-auth.onAuthStateChanged(user => {
-  if(user){
-    console.log('User logged in');
-  }else{
-    console.log('User logged out');
-  }
-})
-
-app.post('/register', function (req, res) {
+////////////////////////////////////////////////// Registo/Login/Logout POR TESTAR//////////////////////////////////////////////////
+app.post('/register', async function (req, res) {
   console.log(req.body);
   var user = {username: req.body.username, password: req.body.password, email: req.body.email}
   
-  //usar o firebase para guardar o user  -- Testar
-  if(ValidateEmail(user.email)){
-    
-    auth.createUserWithEmailAndPassword(user.email, user.password).then(function(){
-      var user = auth.currentUser;
-      
-      var databaseRef = database.ref('users/' + user.uid);
-      
-      var user_Data = {
-        email: user.email,
-        username: user.username,
-        password: user.password,
-        lastLogin: Date.now()
-      }
-
-      databaseRef.set(user_Data);
-      res.status(200).send('User registered ' + user);
-    }).catch(function(error){
-      res.send('Error registering user ' + error);
+  try {
+    const userRegistration = await admin.auth().createUser({
+      email: user.email,
+      password: user.password,
+      displayName: user.username,
+      emailVerified: false,
+      disabled: false
     })
-
-  }else{
-    res.send('Invalid email');
+  
+    const userUID = userRegistration.uid;
+    
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(userUID);
+    const userDoc = await userRef.set({
+      username: user.username,
+      email: user.email,
+      password: user.password,
+      lastLogin: Date.now()
+    })
+  
+    res.status(200).send('User registered ' + userRegistration);
+  } catch (error) {
+    res.status(400).send('Error registering user ' + error);
   }
-  res.send('User registered ' + user);
+
 })
 
 app.post('/login', function (req, res) { 
   try {
+    const db = admin.firestore();
+    const userCollection = db.collection('users')
+    
+    userCollection.where('email', '==', req.body.email).get().then((snapshot) => {
+      if (snapshot.empty) {
+        console.log('No matching documents.');
+        return;
+      }else{
+        snapshot.forEach(doc => {
+          const uid = doc.id;
 
-    auth.signInWithEmailAndPassword(req.body.email, req.body.password).then(function(){
-      var user = auth.currentUser; 
-      var databaseRef = database.ref('users/' + user.uid);
-        
-        var user_Data = {
-          lastLogin: Date.now()
-        }
-  
-        databaseRef.update(user_Data);
-  
-      res.status(200).send('User logged in ' + user);
-    }).catch(function(error){
-      res.status.apply(400).send('Error logging in ' + error);
+          const user = doc.data();
+          user.lastLogin = Date.now();
+          userCollection.doc(uid).update(user);
+
+          admin.auth().createCustomToken(uid).then((customToken) => {
+            res.status(200).send(customToken);
+          }).catch((error) => {
+            res.status(400).send('Error logging in ' + error);
+          })
+
+        })
+      }
+    }).catch((error) => {
+      res.status(400).send('Error logging in ' + error);
     })
-
-  } catch (error) {
+  }catch (error) {
     res.status(400).send('Error logging in ' + error);
   }
 })
@@ -153,13 +204,6 @@ app.get('/temperature', function (req, res) {
   res.send('Temperature is ' + temperature);
 })
 
-app.post('/temperature', function (req, res) {
-  //usar o firebase para guardar a temperatura
-
-  res.send('Temperature is ' + temperature);
-})
-
-
 ///////////////////////////////////////////////// Windows Related //////////////////////////////////////////////////
 
 //Alterar estado das janelas baseado no seu ID
@@ -180,6 +224,11 @@ app.post('/WindowsDivision', function (req, res) {
   res.send('State changed to ' + state);
 })
 
+//Obter estado das janelas
+app.get('/WindowsState', function (req, res) {
+  //ler do firestore o estado das janelas
+  res.send('Windows state is ' + state);
+})
 
 //////////////////////////////////////////// Lights Related //////////////////////////////////////////////////
 //Alterar estado das luzes baseado no seu ID
@@ -189,7 +238,6 @@ app.post('/ChangeLightState', function (req, res) {
   client.publish(topic, state);
   res.send('State changed to ' + state);
 })
-
 
 //Alterar estado das luzes baseado na divisão da casa
 app.post('/LightsDivision', function (req, res) {
@@ -202,11 +250,15 @@ app.post('/LightsDivision', function (req, res) {
 ///////////////////////////////////////////// Fire Related //////////////////////////////////////////////////
 //Ler estado do fogo
 app.get('/FireState', function (req, res) {
-  
 })
 
 ///////////////////////////////////////////// Motion Related //////////////////////////////////////////////////
 //Ler estado do movimento (tentar fazer com que dependendo do estado de segurança, ativar o buzzer ou apenas enviar notificação)
 app.get('/MotionState', function (req, res) {
-  
+})
+
+
+///////////////////////////////////////////// Humidity Related //////////////////////////////////////////////////
+//Ler estado da humidade
+app.get('/HumidityState', function (req, res) {
 })
