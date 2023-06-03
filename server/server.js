@@ -48,7 +48,6 @@ try {
 }
 
 //Registar
-// Serve the registration form
 app.get('/register', (req, res) => {
   const filePath = path.join(__dirname, '..', 'src', 'register.html');
   res.sendFile(filePath);
