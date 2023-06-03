@@ -9,27 +9,61 @@
     <link rel="stylesheet" href="/font-awesome-4.7.0/css/font-awesome.min.css"/>
 </head>
 <body>
-  <h1>Register</h1>
-  <form method="POST" action="/register">
-    <div>
-      <label for="username">Username:</label>
-      <input type="text" id="username" name="username" required>
+  <div class="signup_container">
+    <div class="signup_form_container">
+      <div class="left">
+        <img src="logo.png" alt="Logo" class="logo" />
+        <h1>Welcome Back</h1>
+          <button type="button" class="white_btn">
+            Sign in
+          </button>
+      </div>
+      <div class="right">
+        <form class= "form_container" method="POST" action="/register">
+          <h1>Create Account</h1>
+          <input 
+            type="text" 
+            id="username" 
+            placeholder="Username"
+            name="username" 
+            value="name"
+            required
+            class="input"
+          />
+          <input 
+            type="email" 
+            id="email" 
+            placeholder="Email"
+            name="email" 
+            required
+            value="email"
+            required
+            class="input"
+          />
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            name="password"
+            value={password}
+            required
+            class=input
+          />
+          <input
+            type="password"
+            id="confirm-password"
+            placeholder="Confirm Password"
+            name="confirm-password"
+            value={confirmPassword}
+            required
+            class=input
+          />
+          <button type="submit" value="Register" class=green_btn>
+            Sign Up
+          </button>
+        </form>
+      </div>
     </div>
-    <div>
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
-    </div>
-    <div>
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
-    </div>
-    <div>
-      <label for="confirm-password">Confirm Password:</label>
-      <input type="password" id="confirm-password" name="confirm-password" required>
-    </div>
-    <div>
-      <input type="submit" value="Register">
-    </div>
-  </form>
+  </div>
 </body>
 </html>
