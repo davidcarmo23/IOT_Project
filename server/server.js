@@ -1,13 +1,126 @@
-// Variaveis de ambiente
+//variaveis globais
 const express = require('express')
+const path = require('path');
+const mime = require('mime');
+
+// Variaveis do https
+const https = require('https');
+var fs = require('fs');
+var key  = fs.readFileSync('../cert/key.pem', 'utf8');
+var cert = fs.readFileSync('../cert/cert.pem', 'utf8');
+var options = {
+  key: key,
+  cert: cert
+};
+
+// Variaveis
 const app = express()
 const port = 3000
 
+//opções
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+//para o css
+app.use(express.static(path.join(__dirname, '/../src'), {
+  setHeaders: (res, filePath) => {
+    const mimeType = mime.getType(filePath);
+    if (mimeType.startsWith('text/css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+  }
+}));
+
+
 // Firebase
 const admin = require('firebase-admin');
+const credentials = require('./iottesting-3b1e7-firebase-adminsdk-u0mzd-2c24538b0a.json');
 
-const serviceAccount = require('./iottesting-3b1e7-firebase-adminsdk-u0mzd-2c24538b0a.json');
+//Inicialização da Comunicação com o Firestore
+try {
+  admin.initializeApp({
+    credential: admin.credential.cert(credentials),
+    databaseURL: 'https://iottesting-3b1e7-default-rtdb.europe-west1.firebasedatabase.app/'
+    });
+    const db = admin.firestore();
+} catch (error) {
+  console.log("Firestore Connection error  " + error);
+}
 
+//Registar
+// Serve the registration form
+app.get('/register', (req, res) => {
+  const filePath = path.join(__dirname, '..', 'src', 'register.html');
+  res.sendFile(filePath);
+});
+
+app.post('/register', async function (req, res) {
+  var user = {
+    username: req.body.username,
+    password: req.body.password,
+    confirmPassword: req.body['confirm-password'], // Access confirm-password field
+    email: req.body.email
+  }
+  
+  // Check if passwords match
+  if (user.password !== user.confirmPassword) {
+    res.status(400).send('Passwords do not match');
+    return; // Return to exit the function
+  }
+
+try {
+  // Check if username or email already exist in the database
+  const db = admin.firestore();
+  const usersCollection = db.collection('users');
+  
+  const existingUsername = await usersCollection.where('username', '==', user.username).get();
+  if (!existingUsername.empty) {
+    res.status(400).send('Username already exists');
+    return;
+  }
+  
+  const existingEmail = await usersCollection.where('email', '==', user.email).get();
+  if (!existingEmail.empty) {
+    res.status(400).send('Email already exists');
+    return;
+  }
+  
+  // If username and email are unique, proceed with user registration
+  const userRegistration = await admin.auth().createUser({
+    email: user.email,
+    password: user.password,
+    displayName: user.username,
+    emailVerified: false,
+    disabled: false
+  });
+
+  const userUID = userRegistration.uid;
+  
+  const userRef = db.collection('users').doc(userUID);
+  const userDoc = await userRef.set({
+    username: user.username,
+    email: user.email,
+    password: user.password,
+    lastLogin: Date.now()
+  });
+
+  res.status(200).send('User registered ' + userRegistration);
+} catch (error) {
+  res.status(400).send('Error registering user ' + error);
+}
+
+})
+
+
+app.get('/', (req, res) => {
+  res.send('Now using https..');
+});
+
+var server = https.createServer(options, app);
+
+server.listen(port, () => console.log(`Example app listening on port ${port}!`))
+
+//___________________________________________________________________________
 
 // MQTT Mosquitto
 const mqtt = require('mqtt');
@@ -101,52 +214,9 @@ client.on("error",function(error){
 });
 */
 
-//Inicialização da Comunicação com o Firestore
-try {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://iottesting-3b1e7-default-rtdb.europe-west1.firebasedatabase.app/'
-    });
-    const db = admin.firestore();
-} catch (error) {
-  console.log("Firestore Connection error  " + error);
-}
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
 ////////////////////////////////////////////////// Registo/Login/Logout POR TESTAR//////////////////////////////////////////////////
-app.post('/register', async function (req, res) {
-  console.log(req.body);
-  var user = {username: req.body.username, password: req.body.password, email: req.body.email}
-  
-  try {
-    const userRegistration = await admin.auth().createUser({
-      email: user.email,
-      password: user.password,
-      displayName: user.username,
-      emailVerified: false,
-      disabled: false
-    })
-  
-    const userUID = userRegistration.uid;
-    
-    const db = admin.firestore();
-    const userRef = db.collection('users').doc(userUID);
-    const userDoc = await userRef.set({
-      username: user.username,
-      email: user.email,
-      password: user.password,
-      lastLogin: Date.now()
-    })
-  
-    res.status(200).send('User registered ' + userRegistration);
-  } catch (error) {
-    res.status(400).send('Error registering user ' + error);
-  }
-
-})
 
 app.post('/login', function (req, res) { 
   try {
