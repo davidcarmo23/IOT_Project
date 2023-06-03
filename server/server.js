@@ -367,7 +367,6 @@ app.post('/logout', function (req, res) {
 ////////////////////////////////////////////////// Funções Sensores Related /////////////////////////////////////////
 // Receber dados do tópico temperatura e guardar no Firestore (Tudo numa função ou separadas ????? )
 // Utilizar JSON.parse para converter a string recebida em JSON (tem de se enviar como JSON do arduino)
-client.publish('temperatura', '20');
 
 ////////////////////////////////////////////////// Temperatura Related /////////////////////////////////////////
 app.get('/temperature', function (req, res) {
