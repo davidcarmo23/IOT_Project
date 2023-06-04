@@ -47,70 +47,6 @@ try {
   console.log("Firestore Connection error  " + error);
 }
 
-//Registar
-app.get('/register', (req, res) => {
-  const filePath = path.join(__dirname, '..', 'src', 'register.html');
-  res.sendFile(filePath);
-});
-
-app.post('/register', async function (req, res) {
-  var user = {
-    username: req.body.username,
-    password: req.body.password,
-    confirmPassword: req.body['confirm-password'], // Access confirm-password field
-    email: req.body.email
-  }
-  
-  // Check if passwords match
-  if (user.password !== user.confirmPassword) {
-    res.status(400).send('Passwords do not match');
-    return; // Return to exit the function
-  }
-
-try {
-  // Check if username or email already exist in the database
-  const db = admin.firestore();
-  const usersCollection = db.collection('users');
-  
-  const existingUsername = await usersCollection.where('username', '==', user.username).get();
-  if (!existingUsername.empty) {
-    res.status(400).send('Username already exists');
-    return;
-  }
-  
-  const existingEmail = await usersCollection.where('email', '==', user.email).get();
-  if (!existingEmail.empty) {
-    res.status(400).send('Email already exists');
-    return;
-  }
-  
-  // If username and email are unique, proceed with user registration
-  const userRegistration = await admin.auth().createUser({
-    email: user.email,
-    password: user.password,
-    displayName: user.username,
-    emailVerified: false,
-    disabled: false
-  });
-
-  const userUID = userRegistration.uid;
-  
-  const userRef = db.collection('users').doc(userUID);
-  const userDoc = await userRef.set({
-    username: user.username,
-    email: user.email,
-    password: user.password,
-    lastLogin: Date.now()
-  });
-
-  res.status(200).send('User registered ' + userRegistration);
-} catch (error) {
-  res.status(400).send('Error registering user ' + error);
-}
-
-})
-
-
 app.get('/', (req, res) => {
   res.send('Now using https..');
 });
@@ -130,22 +66,6 @@ const mqttPassword = 'password';
 
 const client = mqtt.connect(mqttServer);
 
-
-
-//Inicialização da Comunicação com o Firestore
-try {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://iottesting-3b1e7-default-rtdb.europe-west1.firebasedatabase.app/'
-    });
-    console.log("Firestore Connection successful")
-} catch (error) {
-  console.log("Firestore Connection error  " + error);
-}
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.listen(port, () => console.log(`listening on port ${port}!`))
 
 // Inicialização da Comunicação com o broker MQTT e subscrição aos tópicos
 const temperatureTopic = '+/temperatura';
@@ -320,38 +240,114 @@ client.on("error",function(error){
 
 ////////////////////////////////////////////////// Registo/Login/Logout POR TESTAR//////////////////////////////////////////////////
 
-app.post('/login', function (req, res) { 
+//Registar
+
+app.get('/register', (req, res) => {
+  const filePath = path.join(__dirname, '..', 'src', 'register.html');
+  res.sendFile(filePath);
+});
+
+app.post('/register', async function (req, res) {
+  var user = {
+    username: req.body.username,
+    password: req.body.password,
+    confirmPassword: req.body['confirm-password'], // Access confirm-password field
+    email: req.body.email
+  }
+  
+  // Check if passwords match
+  if (user.password !== user.confirmPassword) {
+    res.status(400).json({ errorField: 'confirm-password', errorMessage: 'Passwords do not match' });
+    return; // Return to exit the function
+  }
+
+try {
+  // Check if username or email already exist in the database
+  const db = admin.firestore();
+  const usersCollection = db.collection('users');
+  
+  const existingUsername = await usersCollection.where('username', '==', user.username).get();
+  if (!existingUsername.empty) {
+    res.status(400).json({ errorField: 'username', errorMessage: 'Username already exists' });
+    return;
+  }
+  
+  const existingEmail = await usersCollection.where('email', '==', user.email).get();
+  if (!existingEmail.empty) {
+    res.status(400).json({ errorField: 'email', errorMessage: 'Email already exists' });
+    return;
+  }
+  
+  // If username and email are unique, proceed with user registration
+  const userRegistration = await admin.auth().createUser({
+    email: user.email,
+    password: user.password,
+    displayName: user.username,
+    emailVerified: false,
+    disabled: false
+  });
+
+  const userUID = userRegistration.uid;
+  
+  const userRef = db.collection('users').doc(userUID);
+  const userDoc = await userRef.set({
+    username: user.username,
+    email: user.email,
+    password: user.password,
+    lastLogin: Date.now()
+  });
+
+  res.status(200).json({ successMessage: 'User registered successfully' });
+} catch (error) {
+  res.status(400).json({ error: 'Error registering user ' + error });
+}
+
+})
+
+app.get('/login', (req, res) => {
+  const filePath = path.join(__dirname, '..', 'src', 'login.html');
+  res.sendFile(filePath);
+});
+
+app.post('/login', function (req, res) {
   try {
     const db = admin.firestore();
-    const userCollection = db.collection('users')
-    
-    userCollection.where('email', '==', req.body.email).get().then((snapshot) => {
-      if (snapshot.empty) {
-        console.log('No matching documents.');
-        return;
-      }else{
-        snapshot.forEach(doc => {
-          const uid = doc.id;
+    const userCollection = db.collection('users');
 
-          const user = doc.data();
-          user.lastLogin = Date.now();
-          userCollection.doc(uid).update(user);
+    userCollection.where('email', '==', req.body.email).get()
+      .then((snapshot) => {
+        if (snapshot.empty) {
+          return res.status(400).json({ error: 'The email is invalid.' });
+        }
 
-          admin.auth().createCustomToken(uid).then((customToken) => {
-            res.status(200).send(customToken);
-          }).catch((error) => {
-            res.status(400).send('Error logging in ' + error);
+        const doc = snapshot.docs[0];
+        const uid = doc.id;
+        const user = doc.data();
+
+        if (user.password !== req.body.password) {
+          return res.status(400).json({ error: 'Invalid password.' });
+        }
+
+        user.lastLogin = Date.now();
+        userCollection.doc(uid).update(user);
+
+        admin.auth().createCustomToken(uid)
+          .then((customToken) => {
+            res.status(200).json({ customToken });
           })
-
-        })
-      }
-    }).catch((error) => {
-      res.status(400).send('Error logging in ' + error);
-    })
-  }catch (error) {
-    res.status(400).send('Error logging in ' + error);
+          .catch((error) => {
+            throw error;
+          });
+      })
+      .catch((error) => {
+        throw error;
+      });
+  } catch (error) {
+    res.status(400).json({ error: 'Error logging in: ' + error });
   }
-})
+});
+
+
 
 app.post('/logout', function (req, res) { 
 

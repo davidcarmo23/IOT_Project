@@ -13,28 +13,19 @@
     <div class="signup_form_container">
       <div class="left">
         <img src="logo.png" alt="Logo" class="logo" />
-        <h1>Welcome Back</h1>
-          <button type="button" class="white_btn" onclick="location.href='/login'">
-            Sign in
+        <h1>New Here ?</h1>
+          <button type="button" class="white_btn" onclick="location.href='/register'">
+            Sign up
           </button>
       </div>
       <div class="right">
-        <form class= "form_container" method="POST" action="/register">
-          <h1>Create Account</h1>
-          <input 
-            type="text" 
-            id="username" 
-            placeholder="Username"
-            name="username" 
-            required
-            class="input"
-          />
+        <form class= "form_container" method="POST" action="/login">
+          <h1>Login to Your Account</h1>
           <input 
             type="email" 
             id="email" 
             placeholder="Email"
             name="email" 
-            required
             required
             class="input"
           />
@@ -46,17 +37,9 @@
             required
             class=input
           />
-          <input
-            type="password"
-            id="confirm-password"
-            placeholder="Confirm Password"
-            name="confirm-password"
-            required
-            class=input
-          />
           <div id="error-message" style="text-decoration: underline; color: red; font-size: 12px;"></div>
-          <button type="submit" value="Register" class=green_btn>
-            Sign Up
+          <button type="submit" value="Register" class="green_btn">
+            Sign In
           </button>
         </form>
       </div>
