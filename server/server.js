@@ -242,6 +242,8 @@ client.on("error",function(error){
 
 //Registar
 
+const bcrypt = require("bcrypt")
+
 app.get('/register', (req, res) => {
   const filePath = path.join(__dirname, '..', 'src', 'register.html');
   res.sendFile(filePath);
@@ -279,22 +281,18 @@ try {
   }
   
   // If username and email are unique, proceed with user registration
-  const userRegistration = await admin.auth().createUser({
-    email: user.email,
-    password: user.password,
-    displayName: user.username,
-    emailVerified: false,
-    disabled: false
-  });
 
-  const userUID = userRegistration.uid;
-  
-  const userRef = db.collection('users').doc(userUID);
-  const userDoc = await userRef.set({
+  // Obter hash da password
+  const hash = await bcrypt.hash(user.password, 12)
+
+  // Inserir user na Firestore
+  const userDoc = await db.collection('users').add({
     username: user.username,
     email: user.email,
+    password: hash,
     lastLogin: Date.now()
   });
+
 
   res.status(200).json({ successMessage: 'User registered successfully' });
 } catch (error) {
@@ -314,7 +312,7 @@ app.post('/login', function (req, res) {
     const userCollection = db.collection('users');
 
     userCollection.where('email', '==', req.body.email).get()
-      .then((snapshot) => {
+      .then(async (snapshot) => {
         if (snapshot.empty) {
           return res.status(400).json({ error: 'The email is invalid.' });
         }
@@ -323,7 +321,10 @@ app.post('/login', function (req, res) {
         const uid = doc.id;
         const user = doc.data();
 
-        if (user.password !== req.body.password) {
+        // Verificar hash da password
+        const pass_valid = await bcrypt.compare(req.body.password, user.password)
+
+        if (!pass_valid) {
           return res.status(400).json({ error: 'Invalid password.' });
         }
 
