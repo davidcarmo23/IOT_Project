@@ -293,7 +293,6 @@ try {
   const userDoc = await userRef.set({
     username: user.username,
     email: user.email,
-    password: user.password,
     lastLogin: Date.now()
   });
 
