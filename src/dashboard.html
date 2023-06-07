@@ -26,6 +26,16 @@
       <button id="alarme" onclick="mudarAlarme()"></button>
     </div>
   </div>
+
+  <h2>Última humidade registada: </h2>
+  <p id="last-hum"></p>
+  <h2>Todos os valores de humidade registados hoje: </h2>
+  <ul id="all-hums"></ul>
+
+  <h2>Última luminosidade registada: </h2>
+  <p id="last-lum"></p>
+  <h2>Todos os valores de luminosidade registados hoje: </h2>
+  <ul id="all-lums"></ul>
   
   <script>
     //get current time
@@ -61,63 +71,106 @@
 
 
     //stuff
-    fetch('https://localhost:3000/getTemp')
-      .then(res => {
-        return res.json();
-      })
-      .then(data => {
-        document.getElementById('last-temp').innerText = data.lastTemp;
+      async function getTemp() {
+        const res = await fetch('https://localhost:3000/getTemp');
+        const data = await res.json();
+        
+        if (res.status === 400)
+          alert(data.message)
+        else {
+          document.getElementById('last-temp').innerText = data.lastTemp;
 
-        data.temperatura.forEach(temp => {
-          const markup = `<li>${temp}</li>`;
+          data.temperatura.forEach(temp => {
+            const markup = `<li>${temp}</li>`;
 
-          document.getElementById('all-temps').insertAdjacentHTML('beforeend', markup);
-        });
-      })
-      .catch(error => alert(error));
+            document.getElementById('all-temps').insertAdjacentHTML('beforeend', markup);
+          });
+        }
+      }
+      getTemp();
+
+      async function getHum() {
+        const res = await fetch('https://localhost:3000/getHum');
+        const data = await res.json();
+        
+        if (res.status === 400)
+          alert(data.message)
+        else {
+          document.getElementById('last-hum').innerText = data.lastHum;
+
+          data.humidade.forEach(hum => {
+            const markup = `<li>${hum}</li>`;
+
+            document.getElementById('all-hums').insertAdjacentHTML('beforeend', markup);
+          });
+        }
+      }
+      getHum();
+
+      async function getLum() {
+        const res = await fetch('https://localhost:3000/getLum');
+        const data = await res.json();
+        
+        if (res.status === 400)
+          alert(data.message)
+        else {
+          document.getElementById('last-lum').innerText = data.lastLum;
+
+          data.luminosidade.forEach(lum => {
+            const markup = `<li>${lum}</li>`;
+
+            document.getElementById('all-lums').insertAdjacentHTML('beforeend', markup);
+          });
+        }
+      }
+      getLum();
 
       let alarme_status = false;
-      fetch('https://localhost:3000/getAlarm')
-      .then(res => {
-        return res.json();
-      })
-      .then(data => {
-        if (data.alarme) {
-          document.getElementById('alarme').innerText = "Desativar alarme";
-          alarme_status = true;
-        }
+      async function getAlarm() {
+        const res = await fetch('https://localhost:3000/getAlarm');
+        const data = await res.json();
+        
+        if (res.status === 400)
+          alert(data.message)
         else {
-          document.getElementById('alarme').innerText = "Ativar alarme";
-          alarme_status = false;
+          if (data.alarme) {
+            document.getElementById('alarme').innerText = "Desativar alarme";
+            alarme_status = true;
+          }
+          else {
+            document.getElementById('alarme').innerText = "Ativar alarme";
+            alarme_status = false;
+          }
         }
-      })
-      .catch(error => alert(error));
+      }
+      getAlarm();
 
-      function mudarAlarme() {
+      async function mudarAlarme() {
         if (alarme_status) {
-          fetch('https://localhost:3000/disableAlarm')
-            .then(res => {
-              return res.json();
-            })
-            .then(data => {
-              if (data.message === "ok") {
-                alarme_status = false;
-                document.getElementById('alarme').innerText = "Ativar alarme";
-              }
-            })
-            .catch(error => alert(error));
+          const res = await fetch('https://localhost:3000/disableAlarm');
+          const data = await res.json();
+
+          if (res.status === 400)
+            alert(data.message)
+          else {
+            if (data.message === "ok") {
+              alarme_status = false;
+              document.getElementById('alarme').innerText = "Ativar alarme";
+            }
+          }
+
         } else {
-          fetch('https://localhost:3000/activateAlarm')
-            .then(res => {
-              return res.json();
-            })
-            .then(data => {
-              if (data.message === "ok") {
-                alarme_status = true;
-                document.getElementById('alarme').innerText = "Desativar alarme";
-              }
-            })
-            .catch(error => alert(error));
+          const res = await fetch('https://localhost:3000/activateAlarm');
+          const data = await res.json();
+
+          if (res.status === 400)
+            alert(data.message)
+          else {
+            if (data.message === "ok") {
+              alarme_status = true;
+              document.getElementById('alarme').innerText = "Desativar alarme";
+            }
+          }
         }
       }
   </script>

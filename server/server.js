@@ -83,69 +83,6 @@ client.on("connect",function(){
   
 })
 
-function debug() {
-  var associated_user = "jeff@ubi.pt"
-
-  const db = admin.firestore();
-  const userCollection = db.collection('users')
-
-  userCollection.where('email', '==', associated_user).get().then((snapshot) => {
-    if (snapshot.empty) {
-      console.log('No matching documents.');
-      return;
-    } else {
-      snapshot.forEach(async doc => {
-        const uid = doc.id;
-        console.log(uid)
-
-        var today = new Date();
-        var month = (today.getUTCMonth() + 1 < 10 ? '0' : '') + (today.getUTCMonth() + 1);
-        var day = (today.getUTCDate() < 10 ? '0' : '') + today.getUTCDate();
-        var year = today.getUTCFullYear();
-
-        try {
-          var date = year + "-" + month + "-" + day;
-          var temperatura = 48;
-
-          // Ler array
-          var databaseRef = db.collection('users').doc(uid);
-          const tempDoc = await databaseRef.get();
-          const tempObj = tempDoc.data().temperatura;
-
-          if (tempObj == null || tempObj[date] == null) {
-            // Inserir temperatura pela primeira vez
-            const path = "temperatura." + date;
-            const res = await databaseRef.update({
-              [path]: [temperatura]
-            })
-
-
-          } else {
-            // Atualizar array
-            const original_array = tempObj[date];
-            original_array.push(temperatura)
-
-            // Escrever array
-            const path = "temperatura." + date;
-            const res = await databaseRef.update({
-              [path]: original_array
-            })
-          }
-
-
-        } catch (error) {
-          console.log("Error getting doc " + error);
-        }
-
-
-
-      })
-    }
-  }).catch((error) => {
-    res.status(400).send('Error identifying connection ' + error);
-  })
-}
-
 
 //Por ACABAR
 client.on('message', function(topic, message, packet){
@@ -171,7 +108,6 @@ client.on('message', function(topic, message, packet){
       } else {
         snapshot.forEach(async doc => {
           const uid = doc.id;
-          console.log(uid)
 
           var today = new Date();
           var month = (today.getUTCMonth() + 1 < 10 ? '0' : '') + (today.getUTCMonth() + 1);
@@ -216,21 +152,83 @@ client.on('message', function(topic, message, packet){
             }
 
           }
-        
-          // POR FAZER
-          if(topic_ext == "luminosidade"){
-        
-            try {
-              var databaseRef = db.collection('users/' + uid + '/luminosidade').doc(year + "-" + month + "-" + day + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds())
 
-              const tempDoc = await databaseRef.set({
-                luminosidade: Buffer.from(message).toString('utf8')
-              })
+          // FEITO
+          if (topic_ext == "humidade") {
+
+            try {
+              var date = year + "-" + month + "-" + day;
+              var humidade = parseInt(Buffer.from(message).toString('utf8'));
+
+              // Ler array
+              var databaseRef = db.collection('users').doc(uid);
+              const humDoc = await databaseRef.get();
+              const humObj = humDoc.data().humidade;
+
+              if (humObj == null || humObj[date] == null) {
+                // Inserir humidade pela primeira vez
+                const path = "humidade." + date;
+                const res = await databaseRef.update({
+                  [path]: [humidade]
+                })
+
+
+              } else {
+                // Atualizar array
+                const original_array = humObj[date];
+                original_array.push(humidade)
+
+                // Escrever array
+                const path = "humidade." + date;
+                const res = await databaseRef.update({
+                  [path]: original_array
+                })
+              }
+
 
             } catch (error) {
               console.log("Error getting doc " + error);
             }
-         
+
+          }
+        
+          // FEITO
+          if (topic_ext == "luminosidade") {
+
+            try {
+              var date = year + "-" + month + "-" + day;
+              var luminosidade = parseInt(Buffer.from(message).toString('utf8'));
+
+              // Ler array
+              var databaseRef = db.collection('users').doc(uid);
+              const lumDoc = await databaseRef.get();
+              const lumObj = lumDoc.data().luminosidade;
+
+              if (lumObj == null || lumObj[date] == null) {
+                // Inserir luminosidade pela primeira vez
+                const path = "luminosidade." + date;
+                const res = await databaseRef.update({
+                  [path]: [luminosidade]
+                })
+
+
+              } else {
+                // Atualizar array
+                const original_array = lumObj[date];
+                original_array.push(luminosidade)
+
+                // Escrever array
+                const path = "luminosidade." + date;
+                const res = await databaseRef.update({
+                  [path]: original_array
+                })
+              }
+
+
+            } catch (error) {
+              console.log("Error getting doc " + error);
+            }
+
           }
         
           // FEITO
@@ -293,22 +291,6 @@ client.on('message', function(topic, message, packet){
 
               const tempDoc = await databaseRef.set({
                 fogo: Buffer.from(message).toString('utf8')
-              })
-
-            } catch (error) {
-              console.log("Error getting doc " + error);
-            }
-        
-          }
-        
-          // POR FAZER
-          if(topic_ext == "humidade"){
-        
-            try {
-              var databaseRef = db.collection('users/' + uid + '/humidade').doc(year + "-" + month + "-" + day + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds())
-
-              const tempDoc = await databaseRef.set({
-                humidade: Buffer.from(message).toString('utf8')
               })
 
             } catch (error) {
@@ -483,6 +465,78 @@ app.get('/getTemp', async (req, res) => {
         const original_array = tempObj[date];
         const lastTemp = original_array[original_array.length - 1]
         return res.status(200).json({ temperatura: original_array, lastTemp: lastTemp, date: date })
+      }
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
+// Ler humidade da base de dados
+app.get('/getHum', async (req, res) => {
+  try {
+    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      var today = new Date();
+      var month = (today.getUTCMonth() + 1 < 10 ? '0' : '') + (today.getUTCMonth() + 1);
+      var day = (today.getUTCDate() < 10 ? '0' : '') + today.getUTCDate();
+      var year = today.getUTCFullYear();
+
+      var date = year + "-" + month + "-" + day;
+
+      const humObj = doc.data().humidade;
+
+      if (humObj == null || humObj[date] == null) {
+        // Não há registo de humidades
+        return res.status(400).json({ message: "Não há humidade registada para o dia de hoje." })
+      } else {
+        const original_array = humObj[date];
+        const lastHum = original_array[original_array.length - 1]
+        return res.status(200).json({ humidade: original_array, lastHum: lastHum, date: date })
+      }
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
+// Ler luminosidade da base de dados
+app.get('/getLum', async (req, res) => {
+  try {
+    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      var today = new Date();
+      var month = (today.getUTCMonth() + 1 < 10 ? '0' : '') + (today.getUTCMonth() + 1);
+      var day = (today.getUTCDate() < 10 ? '0' : '') + today.getUTCDate();
+      var year = today.getUTCFullYear();
+
+      var date = year + "-" + month + "-" + day;
+
+      const lumObj = doc.data().luminosidade;
+
+      if (lumObj == null || lumObj[date] == null) {
+        // Não há registo de luminosidades
+        return res.status(400).json({ message: "Não há luminosidade registada para o dia de hoje." })
+      } else {
+        const original_array = lumObj[date];
+        const lastLum = original_array[original_array.length - 1]
+        return res.status(200).json({ luminosidade: original_array, lastLum: lastLum, date: date })
       }
     }
 
