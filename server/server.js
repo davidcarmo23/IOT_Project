@@ -814,7 +814,7 @@ app.post('/activateLuz', async (req, res) => {
 
 
 
-app.post('/logout', function (req, res) { 
+app.get('/logout', function (req, res) { 
 
   try {
     res.clearCookie("token");
