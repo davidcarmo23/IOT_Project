@@ -27,7 +27,7 @@
     </div>
   </div>
 
-  <a href="https://localhost:3000/logout">Logout</a><br>
+  <button onclick="logout()">Logout</button><br>
   <h2>Última humidade registada: </h2>
   <p id="last-hum"></p>
   <h2>Todos os valores de humidade registados hoje: </h2>
@@ -75,6 +75,18 @@
 
     // Update the current time every minute
     setInterval(updateCurrentTime, 60000);
+
+    // logout
+    async function logout() {
+      const res = await fetch('https://localhost:3000/logout');
+      const data = await res.json();
+
+      if (data.successMessage) {
+        window.location.replace("https://localhost:3000/login");
+      } else {
+        alert(data.error);
+      }
+    }
       
   </script>
   <script type="text/javascript" src="scripts/api.js"></script>
