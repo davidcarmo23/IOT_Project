@@ -9,6 +9,28 @@
     <link rel="stylesheet" href="/font-awesome-4.7.0/css/font-awesome.min.css"/>
 </head>
 <body>
-  
+  <h2>Última temperatura registada:</h2>
+  <p id="last-temp"></p>
+
+  <h2>Todas as temperaturas registadas hoje:</h2>
+  <ul id="all-temps"></ul>
+
+  <script>
+    fetch('https://localhost:3000/getTemp')
+      .then(res => {
+        return res.json();
+      })
+      .then(data => {
+        document.getElementById('last-temp').innerText = data.lastTemp;
+
+        data.temperatura.forEach(temp => {
+          const markup = `<li>${temp}</li>`;
+
+          document.getElementById('all-temps').insertAdjacentHTML('beforeend', markup);
+        });
+      })
+      .catch(error => alert(error));
+  </script>
+
 </body>
 </html>
