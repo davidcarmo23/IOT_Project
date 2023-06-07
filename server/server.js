@@ -755,7 +755,7 @@ app.get('/activateAlarm', async (req, res) => {
 });
 
 // Obter estado das luzes
-app.get('/getLuzes', async (req, res) => {
+app.get('/getLights', async (req, res) => {
   try {
     const user_uid = req.cookies.userID;
     if (user_uid == null)
@@ -790,7 +790,7 @@ app.get('/getLuzes', async (req, res) => {
 });
 
 // Desativar luz
-app.post('/disableLuz', async (req, res) => {
+app.post('/disableLight', async (req, res) => {
   try {
     const user_uid = req.cookies.userID;
     if (user_uid == null)
@@ -819,7 +819,7 @@ app.post('/disableLuz', async (req, res) => {
 });
 
 // Ativar luz
-app.post('/activateLuz', async (req, res) => {
+app.post('/activateLight', async (req, res) => {
   try {
     const user_uid = req.cookies.userID;
     if (user_uid == null)
@@ -848,7 +848,7 @@ app.post('/activateLuz', async (req, res) => {
 });
 
 // Obter estado das janelas
-app.get('/getJanelas', async (req, res) => {
+app.get('/getWindows', async (req, res) => {
   try {
     const user_uid = req.cookies.userID;
     if (user_uid == null)
@@ -883,7 +883,7 @@ app.get('/getJanelas', async (req, res) => {
 });
 
 // Desativar janela
-app.post('/disableJanela', async (req, res) => {
+app.post('/disableWindow', async (req, res) => {
   try {
     const user_uid = req.cookies.userID;
     if (user_uid == null)
@@ -912,7 +912,7 @@ app.post('/disableJanela', async (req, res) => {
 });
 
 // Ativar janela
-app.post('/activateJanela', async (req, res) => {
+app.post('/activateWindow', async (req, res) => {
   try {
     const user_uid = req.cookies.userID;
     if (user_uid == null)
