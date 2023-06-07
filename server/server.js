@@ -277,11 +277,11 @@ app.get('/register', (req, res) => {
   res.sendFile(filePath);
 });
 
-app.post('/register', async function (req, res) {
+app.post('/doregister', async function (req, res) {
   var user = {
     username: req.body.username,
     password: req.body.password,
-    confirmPassword: req.body['confirm-password'], // Access confirm-password field
+    confirmPassword: req.body.confirm_password, // Access confirm-password field
     email: req.body.email
   }
   

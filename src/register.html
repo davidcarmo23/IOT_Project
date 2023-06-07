@@ -19,7 +19,7 @@
           </button>
       </div>
       <div class="right">
-        <form class= "form_container" method="POST" action="/register">
+        <form class= "form_container">
           <h1>Create Account</h1>
           <input 
             type="text" 
@@ -62,5 +62,39 @@
       </div>
     </div>
   </div>
+
+  <script>
+    async function register(){
+       const response = await fetch('https://localhost:3000/doregister', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value,
+          confirm_password: document.getElementById('confirm-password').value,
+          username: document.getElementById('username').value
+        })
+    });
+
+    const data = await response.json();
+
+    if(data.successMessage){
+      window.location.replace("https://localhost:3000/login");
+    }else{
+      alert(data.error);
+    }
+  }
+
+  const form = document.querySelector('.form_container');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    register();
+  });
+
+  </script>
+
+
 </body>
 </html>
