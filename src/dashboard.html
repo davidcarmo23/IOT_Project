@@ -23,6 +23,7 @@
       <div class="rightD">
   
       </div>
+      <button id="alarme" onclick="mudarAlarme()"></button>
     </div>
   </div>
   
@@ -74,6 +75,51 @@
         });
       })
       .catch(error => alert(error));
+
+      let alarme_status = false;
+      fetch('https://localhost:3000/getAlarm')
+      .then(res => {
+        return res.json();
+      })
+      .then(data => {
+        if (data.alarme) {
+          document.getElementById('alarme').innerText = "Desativar alarme";
+          alarme_status = true;
+        }
+        else {
+          document.getElementById('alarme').innerText = "Ativar alarme";
+          alarme_status = false;
+        }
+      })
+      .catch(error => alert(error));
+
+      function mudarAlarme() {
+        if (alarme_status) {
+          fetch('https://localhost:3000/disableAlarm')
+            .then(res => {
+              return res.json();
+            })
+            .then(data => {
+              if (data.message === "ok") {
+                alarme_status = false;
+                document.getElementById('alarme').innerText = "Ativar alarme";
+              }
+            })
+            .catch(error => alert(error));
+        } else {
+          fetch('https://localhost:3000/activateAlarm')
+            .then(res => {
+              return res.json();
+            })
+            .then(data => {
+              if (data.message === "ok") {
+                alarme_status = true;
+                document.getElementById('alarme').innerText = "Desativar alarme";
+              }
+            })
+            .catch(error => alert(error));
+        }
+      }
   </script>
 
 </body>

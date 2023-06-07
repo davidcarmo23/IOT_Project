@@ -83,6 +83,69 @@ client.on("connect",function(){
   
 })
 
+function debug() {
+  var associated_user = "jeff@ubi.pt"
+
+  const db = admin.firestore();
+  const userCollection = db.collection('users')
+
+  userCollection.where('email', '==', associated_user).get().then((snapshot) => {
+    if (snapshot.empty) {
+      console.log('No matching documents.');
+      return;
+    } else {
+      snapshot.forEach(async doc => {
+        const uid = doc.id;
+        console.log(uid)
+
+        var today = new Date();
+        var month = (today.getUTCMonth() + 1 < 10 ? '0' : '') + (today.getUTCMonth() + 1);
+        var day = (today.getUTCDate() < 10 ? '0' : '') + today.getUTCDate();
+        var year = today.getUTCFullYear();
+
+        try {
+          var date = year + "-" + month + "-" + day;
+          var temperatura = 48;
+
+          // Ler array
+          var databaseRef = db.collection('users').doc(uid);
+          const tempDoc = await databaseRef.get();
+          const tempObj = tempDoc.data().temperatura;
+
+          if (tempObj == null || tempObj[date] == null) {
+            // Inserir temperatura pela primeira vez
+            const path = "temperatura." + date;
+            const res = await databaseRef.update({
+              [path]: [temperatura]
+            })
+
+
+          } else {
+            // Atualizar array
+            const original_array = tempObj[date];
+            original_array.push(temperatura)
+
+            // Escrever array
+            const path = "temperatura." + date;
+            const res = await databaseRef.update({
+              [path]: original_array
+            })
+          }
+
+
+        } catch (error) {
+          console.log("Error getting doc " + error);
+        }
+
+
+
+      })
+    }
+  }).catch((error) => {
+    res.status(400).send('Error identifying connection ' + error);
+  })
+}
+
 
 //Por ACABAR
 client.on('message', function(topic, message, packet){
@@ -110,16 +173,17 @@ client.on('message', function(topic, message, packet){
           const uid = doc.id;
           console.log(uid)
 
+          var today = new Date();
+          var month = (today.getUTCMonth() + 1 < 10 ? '0' : '') + (today.getUTCMonth() + 1);
+          var day = (today.getUTCDate() < 10 ? '0' : '') + today.getUTCDate();
+          var year = today.getUTCFullYear();
+
+          // FEITO
           if (topic_ext == "temperatura") {
 
             try {
-              var today = new Date();
-              var month = (today.getUTCMonth() + 1 < 10 ? '0' : '') + (today.getUTCMonth() + 1);
-              var day = (today.getUTCDate() < 10 ? '0' : '') + today.getUTCDate();
-              var year = today.getUTCFullYear();
-
-              var date = year + "-" + month + "-" + day
-              var temperatura = parseInt(Buffer.from(message).toString('utf8'))
+              var date = year + "-" + month + "-" + day;
+              var temperatura = parseInt(Buffer.from(message).toString('utf8'));
 
               // Ler array
               var databaseRef = db.collection('users').doc(uid);
@@ -128,10 +192,9 @@ client.on('message', function(topic, message, packet){
 
               if (tempObj == null || tempObj[date] == null) {
                 // Inserir temperatura pela primeira vez
+                const path = "temperatura." + date;
                 const res = await databaseRef.update({
-                  temperature: {
-                    [date]: [temperatura]
-                  }
+                  [path]: [temperatura]
                 })
 
 
@@ -141,10 +204,9 @@ client.on('message', function(topic, message, packet){
                 original_array.push(temperatura)
 
                 // Escrever array
+                const path = "temperatura." + date;
                 const res = await databaseRef.update({
-                  temperatura: {
-                    [date]: original_array
-                  }
+                  [path]: original_array
                 })
               }
 
@@ -155,14 +217,10 @@ client.on('message', function(topic, message, packet){
 
           }
         
+          // POR FAZER
           if(topic_ext == "luminosidade"){
         
             try {
-              var today = new Date();
-              var month = today.getUTCMonth() + 1;
-              var day = today.getUTCDate();
-              var year = today.getUTCFullYear();
-
               var databaseRef = db.collection('users/' + uid + '/luminosidade').doc(year + "-" + month + "-" + day + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds())
 
               const tempDoc = await databaseRef.set({
@@ -175,19 +233,35 @@ client.on('message', function(topic, message, packet){
          
           }
         
-          if(topic_ext == "movimento"){
-        
+          // FEITO
+          if (topic_ext == "movimento") {
+
             try {
-              var today = new Date();
-              var month = today.getUTCMonth() + 1;
-              var day = today.getUTCDate();
-              var year = today.getUTCFullYear();
+              var distancia = parseInt(Buffer.from(message).toString('utf8'));
 
-              var databaseRef = db.collection('users/' + uid + '/movimento').doc(year + "-" + month + "-" + day + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds())
+              // Ler array
+              var databaseRef = db.collection('users').doc(uid);
+              const movDoc = await databaseRef.get();
+              const movObj = movDoc.data().movimento;
 
-              const tempDoc = await databaseRef.set({
-                movimento: Buffer.from(message).toString('utf8')
-              })
+              if (movObj == null || movObj.distancia == null) {
+                // Inserir movimento pela primeira vez
+                const res = await databaseRef.update({
+                  "movimento.distancia": 100
+                })
+
+              } else {
+                // Atualizar distancia
+                const original_distancia = movObj.distancia;
+                console.log(movObj)
+                console.log(original_distancia)
+
+                // Escrever array
+                const res = await databaseRef.update({
+                  'movimento.distancia': distancia
+                })
+              }
+
 
             } catch (error) {
               console.log("Error getting doc " + error);
@@ -195,14 +269,10 @@ client.on('message', function(topic, message, packet){
         
           }
         
+          // POR FAZER
           if(topic_ext == "luzes"){
             
             try {
-              var today = new Date();
-              var month = today.getUTCMonth() + 1;
-              var day = today.getUTCDate();
-              var year = today.getUTCFullYear();
-
               var databaseRef = db.collection('users/' + uid + '/luzes').doc(year + "-" + month + "-" + day + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds())
 
               const tempDoc = await databaseRef.set({
@@ -215,14 +285,10 @@ client.on('message', function(topic, message, packet){
         
           }
         
+          // POR FAZER
           if(topic_ext == "fogo"){
         
             try {
-              var today = new Date();
-              var month = today.getUTCMonth() + 1;
-              var day = today.getUTCDate();
-              var year = today.getUTCFullYear();
-
               var databaseRef = db.collection('users/' + uid + '/fogo').doc(year + "-" + month + "-" + day + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds())
 
               const tempDoc = await databaseRef.set({
@@ -235,14 +301,10 @@ client.on('message', function(topic, message, packet){
         
           }
         
+          // POR FAZER
           if(topic_ext == "humidade"){
         
             try {
-              var today = new Date();
-              var month = today.getUTCMonth() + 1;
-              var day = today.getUTCDate();
-              var year = today.getUTCFullYear();
-
               var databaseRef = db.collection('users/' + uid + '/humidade').doc(year + "-" + month + "-" + day + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds())
 
               const tempDoc = await databaseRef.set({
@@ -421,6 +483,112 @@ app.get('/getTemp', async (req, res) => {
         const original_array = tempObj[date];
         const lastTemp = original_array[original_array.length - 1]
         return res.status(200).json({ temperatura: original_array, lastTemp: lastTemp, date: date })
+      }
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
+// Obter estado do alarme
+app.get('/getAlarm', async (req, res) => {
+  try {
+    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      const movObj = doc.data().movimento;
+
+      if (movObj == null || movObj.alarme == null) {
+        // Alarme ainda não foi definido, meter a falso
+        const resDoc = await userRef.update({
+          'movimento.alarme': false
+        })
+        return res.status(200).json({ alarme: false })
+      } else {
+        const alarme = movObj.alarme;
+        return res.status(200).json({ alarme: alarme })
+      }
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
+// Desativar alarme
+app.get('/disableAlarm', async (req, res) => {
+  try {
+    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      const resDoc = await userRef.update({
+        'movimento.alarme': false
+      })
+
+      return res.status(200).json({ message: "ok" })
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
+// Ativar alarme
+app.get('/activateAlarm', async (req, res) => {
+  try {
+    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      const resDoc = await userRef.update({
+        'movimento.alarme': true
+      })
+
+      return res.status(200).json({ message: "ok" })
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
+// Ler movimento da base de dados
+app.get('/getMov', async (req, res) => {
+  try {
+    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      const movObj = doc.data().movimento;
+
+      if (movObj == null || movObj.distancia == null) {
+        return res.status(400).json({ message: "Utilizador não tem distância registada." })
+      } else {
+        const distancia = movObj.distancia;
+        return res.status(200).json({ distancia: distancia })
       }
     }
 
