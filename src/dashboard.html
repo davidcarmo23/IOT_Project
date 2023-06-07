@@ -7,15 +7,59 @@
     <title>Dashboard</title>
     <link rel="stylesheet" type="text/css" href="/style.css">
     <link rel="stylesheet" href="/font-awesome-4.7.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-  <h2>Última temperatura registada:</h2>
-  <p id="last-temp"></p>
-
-  <h2>Todas as temperaturas registadas hoje:</h2>
-  <ul id="all-temps"></ul>
-
+  <div class="dashboard_wrapper">
+    <div class="dashboard_container">
+      <div class="leftD">
+        <h2 id="current-time"></h2>
+        <span id="time-icon" class="fas fa-regular fa-gear"></span>
+        <p id="last-temp">°</p>
+  
+        <h2>ALL</h2>
+        <ul id="all-temps"></ul>
+      </div>
+      <div class="rightD">
+  
+      </div>
+    </div>
+  </div>
+  
   <script>
+    //get current time
+    const currentTimeElement = document.getElementById("current-time");
+
+    function updateCurrentTime() {
+      const currentDate = new Date();
+      const hours = currentDate.getHours();
+      const minutes = currentDate.getMinutes();
+      let period = "AM";
+
+      // Convert to 12-hour format
+      let displayHours = hours;
+      if (displayHours > 12) {
+        displayHours -= 12;
+        period = "PM";
+      } else if (displayHours === 0) {
+        displayHours = 12;
+      }
+
+      // Format minutes with leading zero if needed
+      const displayMinutes = minutes < 10 ? "0" + minutes : minutes;
+
+      // Update the content of the element
+      currentTimeElement.textContent = `${displayHours}:${displayMinutes} ${period}`;
+    }
+
+    // Update the current time initially
+    updateCurrentTime();
+
+    // Update the current time every minute
+    setInterval(updateCurrentTime, 60000);
+
+
+    //stuff
     fetch('https://localhost:3000/getTemp')
       .then(res => {
         return res.json();
