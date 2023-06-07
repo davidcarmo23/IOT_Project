@@ -393,6 +393,42 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(filePath);
 });
 
+// Ler temperatura da base de dados
+app.get('/getTemp', async (req, res) => {
+  try {
+    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      var today = new Date();
+      var month = (today.getUTCMonth() + 1 < 10 ? '0' : '') + (today.getUTCMonth() + 1);
+      var day = (today.getUTCDate() < 10 ? '0' : '') + today.getUTCDate();
+      var year = today.getUTCFullYear();
+
+      var date = year + "-" + month + "-" + day;
+
+      const tempObj = doc.data().temperatura;
+
+      if (tempObj == null || tempObj[date] == null) {
+        // Não há registo de temperaturas
+        return res.status(400).json({ message: "Não há temperaturas registadas para o dia de hoje." })
+      } else {
+        const original_array = tempObj[date];
+        const lastTemp = original_array[original_array.length - 1]
+        return res.status(200).json({ temperatura: original_array, lastTemp: lastTemp, date: date })
+      }
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
 
 
 app.post('/logout', function (req, res) { 
