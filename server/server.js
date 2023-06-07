@@ -398,7 +398,9 @@ app.get('/dashboard', (req, res) => {
 app.post('/logout', function (req, res) { 
 
   try {
-    auth.signOut()
+    res.clearCookie("token");
+    res.clearCookie("userID");
+    res.status(200).json({ successMessage: 'User logged out successfully' });
   } catch (error) {
     console.log('Error logging out ' + error);
   }
