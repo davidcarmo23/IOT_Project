@@ -237,7 +237,7 @@ client.on('message', function(topic, message, packet){
             try {
               var distancia = parseInt(Buffer.from(message).toString('utf8'));
 
-              // Ler array
+              // Ler objeto
               var databaseRef = db.collection('users').doc(uid);
               const movDoc = await databaseRef.get();
               const movObj = movDoc.data().movimento;
@@ -269,20 +269,39 @@ client.on('message', function(topic, message, packet){
         
           }
         
-          // POR FAZER
-          if(topic_ext == "luzes"){
-            
-            try {
-              var databaseRef = db.collection('users/' + uid + '/luzes').doc(year + "-" + month + "-" + day + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds())
+          // FEITO
+          if (topic_ext == "luzes") {
 
-              const tempDoc = await databaseRef.set({
-                luzes: Buffer.from(message).toString('utf8')
-              })
+            try {
+              var msg = Buffer.from(message).toString('utf8');
+              var divisao = msg.split('/')[0];
+              var estado = (msg.split('/')[1] === 'true');
+
+              // Ler objeto
+              var databaseRef = db.collection('users').doc(uid);
+              const luzesDoc = await databaseRef.get();
+              const luzesObj = luzesDoc.data().luzes;
+
+              if (luzesObj == null) {
+                // Inserir luzes pela primeira vez
+                const res = await databaseRef.update({
+                  'luzes.divisao1': false,
+                  'luzes.divisao2': false
+                })
+
+              } else {
+                // Atualiza divisao
+                const path = "luzes." + divisao;
+                const res = await databaseRef.update({
+                  [path]: estado
+                })
+              }
+
 
             } catch (error) {
               console.log("Error getting doc " + error);
             }
-        
+
           }
         
           // FEITO
@@ -442,7 +461,9 @@ app.get('/dashboard', (req, res) => {
 // Ler temperatura da base de dados
 app.get('/getTemp', async (req, res) => {
   try {
-    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
 
     const db = admin.firestore();
     const userRef = db.collection('users').doc(user_uid);
@@ -478,7 +499,9 @@ app.get('/getTemp', async (req, res) => {
 // Ler humidade da base de dados
 app.get('/getHum', async (req, res) => {
   try {
-    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
 
     const db = admin.firestore();
     const userRef = db.collection('users').doc(user_uid);
@@ -514,7 +537,9 @@ app.get('/getHum', async (req, res) => {
 // Ler luminosidade da base de dados
 app.get('/getLum', async (req, res) => {
   try {
-    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
 
     const db = admin.firestore();
     const userRef = db.collection('users').doc(user_uid);
@@ -547,10 +572,70 @@ app.get('/getLum', async (req, res) => {
   }
 });
 
+// Ler última ocurrência de fogo da base de dados
+app.get('/getFire', async (req, res) => {
+  try {
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      const fireObj = doc.data().fogo;
+
+      if (fireObj == null || fireObj.lastOccurrence == null) {
+        return res.status(400).json({ message: "Utilizador não tem fogos registados." })
+      } else {
+        const lastOccurrence = fireObj.lastOccurrence;
+        return res.status(200).json({ lastOccurrence: lastOccurrence })
+      }
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
+// Ler movimento da base de dados
+app.get('/getMov', async (req, res) => {
+  try {
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      const movObj = doc.data().movimento;
+
+      if (movObj == null || movObj.distancia == null) {
+        return res.status(400).json({ message: "Utilizador não tem distância registada." })
+      } else {
+        const distancia = movObj.distancia;
+        return res.status(200).json({ distancia: distancia })
+      }
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
 // Obter estado do alarme
 app.get('/getAlarm', async (req, res) => {
   try {
-    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
 
     const db = admin.firestore();
     const userRef = db.collection('users').doc(user_uid);
@@ -581,7 +666,9 @@ app.get('/getAlarm', async (req, res) => {
 // Desativar alarme
 app.get('/disableAlarm', async (req, res) => {
   try {
-    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
 
     const db = admin.firestore();
     const userRef = db.collection('users').doc(user_uid);
@@ -594,6 +681,8 @@ app.get('/disableAlarm', async (req, res) => {
         'movimento.alarme': false
       })
 
+      // TODO: desativar alarme no arduino
+
       return res.status(200).json({ message: "ok" })
     }
 
@@ -605,7 +694,9 @@ app.get('/disableAlarm', async (req, res) => {
 // Ativar alarme
 app.get('/activateAlarm', async (req, res) => {
   try {
-    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
 
     const db = admin.firestore();
     const userRef = db.collection('users').doc(user_uid);
@@ -618,6 +709,8 @@ app.get('/activateAlarm', async (req, res) => {
         'movimento.alarme': true
       })
 
+      // TODO: ativar alarme no arduino
+
       return res.status(200).json({ message: "ok" })
     }
 
@@ -626,10 +719,12 @@ app.get('/activateAlarm', async (req, res) => {
   }
 });
 
-// Ler movimento da base de dados
-app.get('/getMov', async (req, res) => {
+// Obter estado das luzes
+app.get('/getLuzes', async (req, res) => {
   try {
-    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
 
     const db = admin.firestore();
     const userRef = db.collection('users').doc(user_uid);
@@ -638,13 +733,19 @@ app.get('/getMov', async (req, res) => {
       // User não existe na dashboard, deve ser impossível (!)
       return res.status(400).json({ message: "User não existe." })
     } else {
-      const movObj = doc.data().movimento;
+      const luzesObj = doc.data().luzes;
 
-      if (movObj == null || movObj.distancia == null) {
-        return res.status(400).json({ message: "Utilizador não tem distância registada." })
+      if (luzesObj == null) {
+        // Luzes ainda não foram definidas, meter a falso
+        const resDoc = await userRef.update({
+          'luzes.divisao1': false,
+          'luzes.divisao2': false
+        })
+        return res.status(200).json({ divisao1: false, divisao2: false })
       } else {
-        const distancia = movObj.distancia;
-        return res.status(200).json({ distancia: distancia })
+        const divisao1 = luzesObj.divisao1;
+        const divisao2 = luzesObj.divisao2;
+        return res.status(200).json({ divisao1: divisao1, divisao2: divisao2 })
       }
     }
 
@@ -653,10 +754,12 @@ app.get('/getMov', async (req, res) => {
   }
 });
 
-// Ler última ocurrência de fogo da base de dados
-app.get('/getFire', async (req, res) => {
+// Desativar luz
+app.post('/disableLuz', async (req, res) => {
   try {
-    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
 
     const db = admin.firestore();
     const userRef = db.collection('users').doc(user_uid);
@@ -665,14 +768,43 @@ app.get('/getFire', async (req, res) => {
       // User não existe na dashboard, deve ser impossível (!)
       return res.status(400).json({ message: "User não existe." })
     } else {
-      const fireObj = doc.data().fogo;
+      const path = "luzes." + req.body.divisao;
+      const resDoc = await userRef.update({
+        [path]: false
+      })
 
-      if (fireObj == null || fireObj.lastOccurrence == null) {
-        return res.status(400).json({ message: "Utilizador não tem fogos registados." })
-      } else {
-        const lastOccurrence = fireObj.lastOccurrence;
-        return res.status(200).json({ lastOccurrence: lastOccurrence })
-      }
+      // TODO: desativar luz no arduino
+
+      return res.status(200).json({ message: "ok" })
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
+// Ativar luz
+app.post('/activateLuz', async (req, res) => {
+  try {
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      const path = "luzes." + req.body.divisao;
+      const resDoc = await userRef.update({
+        [path]: true
+      })
+
+      // TODO: ativar luz no arduino
+
+      return res.status(200).json({ message: "ok" })
     }
 
   } catch (error) {
