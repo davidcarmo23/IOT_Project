@@ -245,7 +245,8 @@ client.on('message', function(topic, message, packet){
               if (movObj == null || movObj.distancia == null) {
                 // Inserir movimento pela primeira vez
                 const res = await databaseRef.update({
-                  "movimento.distancia": 100
+                  'movimento.distancia': 100,
+                  'movimento.lastChange': Date.now()
                 })
 
               } else {
@@ -256,7 +257,8 @@ client.on('message', function(topic, message, packet){
 
                 // Escrever array
                 const res = await databaseRef.update({
-                  'movimento.distancia': distancia
+                  'movimento.distancia': distancia,
+                  'movimento.lastChange': Date.now()
                 })
               }
 
@@ -283,20 +285,20 @@ client.on('message', function(topic, message, packet){
         
           }
         
-          // POR FAZER
-          if(topic_ext == "fogo"){
-        
-            try {
-              var databaseRef = db.collection('users/' + uid + '/fogo').doc(year + "-" + month + "-" + day + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds())
+          // FEITO
+          if (topic_ext == "fogo") {
 
-              const tempDoc = await databaseRef.set({
-                fogo: Buffer.from(message).toString('utf8')
+            try {
+              var databaseRef = db.collection('users').doc(uid);
+
+              const res = await databaseRef.update({
+                'fogo.lastOccurrence': Date.now()
               })
 
             } catch (error) {
               console.log("Error getting doc " + error);
             }
-        
+
           }
 
         })
@@ -328,48 +330,48 @@ app.post('/doregister', async function (req, res) {
     confirmPassword: req.body.confirm_password, // Access confirm-password field
     email: req.body.email
   }
-  
+
   // Check if passwords match
   if (user.password !== user.confirmPassword) {
     res.status(400).json({ errorField: 'confirm-password', errorMessage: 'Passwords do not match' });
     return; // Return to exit the function
   }
 
-try {
-  // Check if username or email already exist in the database
-  const db = admin.firestore();
-  const usersCollection = db.collection('users');
-  
-  const existingUsername = await usersCollection.where('username', '==', user.username).get();
-  if (!existingUsername.empty) {
-    res.status(400).json({ errorField: 'username', errorMessage: 'Username already exists' });
-    return;
+  try {
+    // Check if username or email already exist in the database
+    const db = admin.firestore();
+    const usersCollection = db.collection('users');
+
+    const existingUsername = await usersCollection.where('username', '==', user.username).get();
+    if (!existingUsername.empty) {
+      res.status(400).json({ errorField: 'username', errorMessage: 'Username already exists' });
+      return;
+    }
+
+    const existingEmail = await usersCollection.where('email', '==', user.email).get();
+    if (!existingEmail.empty) {
+      res.status(400).json({ errorField: 'email', errorMessage: 'Email already exists' });
+      return;
+    }
+
+    // If username and email are unique, proceed with user registration
+
+    // Obter hash da password
+    const hash = await bcrypt.hash(user.password, 12)
+
+    // Inserir user na Firestore
+    const userDoc = await db.collection('users').add({
+      username: user.username,
+      email: user.email,
+      password: hash,
+      lastLogin: Date.now()
+    });
+
+
+    res.status(200).json({ successMessage: 'User registered successfully' });
+  } catch (error) {
+    res.status(400).json({ error: 'Error registering user ' + error });
   }
-  
-  const existingEmail = await usersCollection.where('email', '==', user.email).get();
-  if (!existingEmail.empty) {
-    res.status(400).json({ errorField: 'email', errorMessage: 'Email already exists' });
-    return;
-  }
-  
-  // If username and email are unique, proceed with user registration
-
-  // Obter hash da password
-  const hash = await bcrypt.hash(user.password, 12)
-
-  // Inserir user na Firestore
-  const userDoc = await db.collection('users').add({
-    username: user.username,
-    email: user.email,
-    password: hash,
-    lastLogin: Date.now()
-  });
-
-
-  res.status(200).json({ successMessage: 'User registered successfully' });
-} catch (error) {
-  res.status(400).json({ error: 'Error registering user ' + error });
-}
 
 })
 
@@ -643,6 +645,33 @@ app.get('/getMov', async (req, res) => {
       } else {
         const distancia = movObj.distancia;
         return res.status(200).json({ distancia: distancia })
+      }
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
+// Ler última ocurrência de fogo da base de dados
+app.get('/getFire', async (req, res) => {
+  try {
+    const user_uid = "POTHWGUN73J5Q4dQjnVp"
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      const fireObj = doc.data().fogo;
+
+      if (fireObj == null || fireObj.lastOccurrence == null) {
+        return res.status(400).json({ message: "Utilizador não tem fogos registados." })
+      } else {
+        const lastOccurrence = fireObj.lastOccurrence;
+        return res.status(200).json({ lastOccurrence: lastOccurrence })
       }
     }
 
