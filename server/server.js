@@ -230,6 +230,22 @@ client.on('message', function(topic, message, packet){
             }
 
           }
+
+          // FEITO
+          if (topic_ext == "fogo") {
+
+            try {
+              var databaseRef = db.collection('users').doc(uid);
+
+              const res = await databaseRef.update({
+                'fogo.lastOccurrence': Date.now()
+              })
+
+            } catch (error) {
+              console.log("Error getting doc " + error);
+            }
+
+          }
         
           // FEITO
           if (topic_ext == "movimento") {
@@ -303,16 +319,35 @@ client.on('message', function(topic, message, packet){
             }
 
           }
-        
+
           // FEITO
-          if (topic_ext == "fogo") {
+          if (topic_ext == "janelas") {
 
             try {
-              var databaseRef = db.collection('users').doc(uid);
+              var msg = Buffer.from(message).toString('utf8');
+              var janela = msg.split('/')[0];
+              var estado = (msg.split('/')[1] === 'true');
 
-              const res = await databaseRef.update({
-                'fogo.lastOccurrence': Date.now()
-              })
+              // Ler objeto
+              var databaseRef = db.collection('users').doc(uid);
+              const janelasDoc = await databaseRef.get();
+              const janelasObj = janelasDoc.data().janelas;
+
+              if (janelasObj == null) {
+                // Inserir janelas pela primeira vez
+                const res = await databaseRef.update({
+                  'janelas.janela1': false,
+                  'janelas.janela2': false
+                })
+
+              } else {
+                // Atualiza janela
+                const path = "janelas." + janela;
+                const res = await databaseRef.update({
+                  [path]: estado
+                })
+              }
+
 
             } catch (error) {
               console.log("Error getting doc " + error);
@@ -803,6 +838,99 @@ app.post('/activateLuz', async (req, res) => {
       })
 
       // TODO: ativar luz no arduino
+
+      return res.status(200).json({ message: "ok" })
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
+// Obter estado das janelas
+app.get('/getJanelas', async (req, res) => {
+  try {
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      const janelasObj = doc.data().janelas;
+
+      if (janelasObj == null) {
+        // Janelas ainda não foram definidas, meter a falso
+        const resDoc = await userRef.update({
+          'janelas.janela1': false,
+          'janelas.janela2': false
+        })
+        return res.status(200).json({ janela1: false, janela2: false })
+      } else {
+        const janela1 = janelasObj.janela1;
+        const janela2 = janelasObj.janela2;
+        return res.status(200).json({ janela1: janela1, janela2: janela2 })
+      }
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
+// Desativar janela
+app.post('/disableJanela', async (req, res) => {
+  try {
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      const path = "janelas." + req.body.janela;
+      const resDoc = await userRef.update({
+        [path]: false
+      })
+
+      // TODO: desativar janela no arduino
+
+      return res.status(200).json({ message: "ok" })
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
+// Ativar janela
+app.post('/activateJanela', async (req, res) => {
+  try {
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      const path = "janelas." + req.body.janela;
+      const resDoc = await userRef.update({
+        [path]: true
+      })
+
+      // TODO: ativar janela no arduino
 
       return res.status(200).json({ message: "ok" })
     }

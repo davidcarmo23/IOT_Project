@@ -286,6 +286,155 @@ async function mudarLuz2() {
     }
 }
 
+let janela1_status = false;
+let janela2_status = false;
+async function getJanelas() {
+    const res = await fetch('https://localhost:3000/getJanelas');
+    const data = await res.json();
+
+    if (res.status !== 200)
+        alert(data.message)
+    else {
+        if (data.janela1) {
+            document.getElementById('janela1').innerText = "Fechar janela1";
+            janela1_status = true;
+        }
+        else {
+            document.getElementById('janela1').innerText = "Abrir janela1";
+            janela1_status = false;
+        }
+
+        if (data.janela2) {
+            document.getElementById('janela2').innerText = "Fechar janela2";
+            janela2_status = true;
+        }
+        else {
+            document.getElementById('janela2').innerText = "Abrir janela2";
+            janela2_status = false;
+        }
+    }
+}
+
+async function mudarJanela1() {
+    if (!logado)
+        return;
+
+    if (janela1_status) {
+        const res = await fetch('https://localhost:3000/disableJanela', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                janela: "janela1"
+            })
+        });
+        const data = await res.json();
+
+        if (res.status === 401) {
+            logado = false;
+            alert(data.message)
+            return;
+        }
+
+        if (res.status === 400)
+            alert(data.message)
+        else {
+            if (data.message === "ok") {
+                janela1_status = false;
+                document.getElementById('janela1').innerText = "Abrir janela1";
+            }
+        }
+
+    } else {
+        const res = await fetch('https://localhost:3000/activateJanela', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                janela: "janela1"
+            })
+        });
+        const data = await res.json();
+
+        if (res.status === 401) {
+            logado = false;
+            alert(data.message)
+            return;
+        }
+
+        if (res.status === 400)
+            alert(data.message)
+        else {
+            if (data.message === "ok") {
+                janela1_status = true;
+                document.getElementById('janela1').innerText = "Fechar janela1";
+            }
+        }
+    }
+}
+
+async function mudarJanela2() {
+    if (!logado)
+        return;
+
+    if (janela2_status) {
+        const res = await fetch('https://localhost:3000/disableJanela', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                janela: "janela2"
+            })
+        });
+        const data = await res.json();
+
+        if (res.status === 401) {
+            logado = false;
+            alert(data.message)
+            return;
+        }
+
+        if (res.status === 400)
+            alert(data.message)
+        else {
+            if (data.message === "ok") {
+                janela2_status = false;
+                document.getElementById('janela2').innerText = "Abrir janela2";
+            }
+        }
+
+    } else {
+        const res = await fetch('https://localhost:3000/activateJanela', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                janela: "janela2"
+            })
+        });
+        const data = await res.json();
+
+        if (res.status === 401) {
+            logado = false;
+            alert(data.message)
+            return;
+        }
+
+        if (res.status === 400)
+            alert(data.message)
+        else {
+            if (data.message === "ok") {
+                janela2_status = true;
+                document.getElementById('janela2').innerText = "Fechar janela2";
+            }
+        }
+    }
+}
+
 // Chamar funções
 getTemp().then(() => {
     if (logado) {
@@ -294,5 +443,6 @@ getTemp().then(() => {
         getFire();
         getAlarm();
         getLuzes();
+        getJanelas();
     }
 })
