@@ -1,0 +1,5 @@
+const TOKEN_SECRET = "ERAUMAVEZUMGATOMALHADO"
+
+module.exports={
+    TOKEN_SECRET,
+}

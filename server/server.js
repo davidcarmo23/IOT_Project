@@ -2,6 +2,9 @@
 const express = require('express')
 const path = require('path');
 const mime = require('mime');
+const jwt = require("jsonwebtoken");
+const cookieParser = require('cookie-parser');
+const {TOKEN_SECRET} = require('./env')
 
 // Variaveis do https
 const https = require('https');
@@ -20,7 +23,7 @@ const port = 3000
 //opções
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 //para o css
 app.use(express.static(path.join(__dirname, '/../src'), {
   setHeaders: (res, filePath) => {
@@ -331,7 +334,7 @@ app.get('/login', (req, res) => {
   res.sendFile(filePath);
 });
 
-app.post('/login', function (req, res) {
+app.post('/dologin', function (req, res) {
   try {
     const db = admin.firestore();
     const userCollection = db.collection('users');
@@ -356,16 +359,29 @@ app.post('/login', function (req, res) {
         user.lastLogin = Date.now();
         userCollection.doc(uid).update(user);
 
-        admin.auth().createCustomToken(uid)
-          .then((customToken) => {
-            res.status(200).json({ customToken });
+        // Gerar token de autenticação com jwt
+        token = jwt.sign(
+          { userId: uid, email: user.email },
+          TOKEN_SECRET,
+          { expiresIn: "2h" }
+        );
+
+        res
+        .cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            SameSite: 'None'
           })
-          .catch((error) => {
-            throw error;
-          });
+          .cookie("userID", uid, {
+            httpOnly: true, 
+            secure: true,
+            SameSite: 'None'
+          })
+
+        res.status(200).json({ successMessage: 'User logged in successfully' });
       })
       .catch((error) => {
-        throw error;
+        res.status(400).json({ error: 'Error logging in: ' + error });
       });
   } catch (error) {
     res.status(400).json({ error: 'Error logging in: ' + error });
