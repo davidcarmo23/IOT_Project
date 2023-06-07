@@ -102,29 +102,54 @@ client.on('message', function(topic, message, packet){
       if (snapshot.empty) {
         console.log('No matching documents.');
         return;
-      }else{
+      } else {
         snapshot.forEach(async doc => {
           const uid = doc.id;
           console.log(uid)
 
-          if(topic_ext == "temperatura"){
+          if (topic_ext == "temperatura") {
 
             try {
               var today = new Date();
-              var month = today.getUTCMonth() + 1;
-              var day = today.getUTCDate();
+              var month = (today.getUTCMonth() + 1 < 10 ? '0' : '') + (today.getUTCMonth() + 1);
+              var day = (today.getUTCDate() < 10 ? '0' : '') + today.getUTCDate();
               var year = today.getUTCFullYear();
 
-              var databaseRef = db.collection('users/' + uid + '/temperatura').doc(year + "-" + month + "-" + day + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds())
+              var date = year + "-" + month + "-" + day
+              var temperatura = parseInt(Buffer.from(message).toString('utf8'))
 
-              const tempDoc = await databaseRef.set({
-                temperatura: Buffer.from(message).toString('utf8')
-              })
+              // Ler array
+              var databaseRef = db.collection('users').doc(uid);
+              const tempDoc = await databaseRef.get();
+              const tempObj = tempDoc.data().temperatura;
+
+              if (tempObj == null || tempObj[date] == null) {
+                // Inserir temperatura pela primeira vez
+                const res = await databaseRef.update({
+                  temperature: {
+                    [date]: [temperatura]
+                  }
+                })
+
+
+              } else {
+                // Atualizar array
+                const original_array = tempObj[date];
+                original_array.push(temperatura)
+
+                // Escrever array
+                const res = await databaseRef.update({
+                  temperatura: {
+                    [date]: original_array
+                  }
+                })
+              }
+
 
             } catch (error) {
               console.log("Error getting doc " + error);
             }
-        
+
           }
         
           if(topic_ext == "luminosidade"){
@@ -345,6 +370,11 @@ app.post('/login', function (req, res) {
   } catch (error) {
     res.status(400).json({ error: 'Error logging in: ' + error });
   }
+});
+
+app.get('/dashboard', (req, res) => {
+  const filePath = path.join(__dirname, '..', 'src', 'dashboard.html');
+  res.sendFile(filePath);
 });
 
 
