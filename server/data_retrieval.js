@@ -20,9 +20,9 @@ router.get('/getTemp', async (req, res) => {
       return res.status(400).json({ message: "User não existe." })
     } else {
       var today = new Date();
-      var month = (today.getUTCMonth() + 1 < 10 ? '0' : '') + (today.getUTCMonth() + 1);
-      var day = (today.getUTCDate() < 10 ? '0' : '') + today.getUTCDate();
-      var year = today.getUTCFullYear();
+      var month = (today.getMonth() + 1 < 10 ? '0' : '') + (today.getMonth() + 1);
+      var day = (today.getDate() < 10 ? '0' : '') + today.getDate();
+      var year = today.getFullYear();
 
       var date = year + "-" + month + "-" + day;
 
@@ -58,9 +58,9 @@ router.get('/getHum', async (req, res) => {
       return res.status(400).json({ message: "User não existe." })
     } else {
       var today = new Date();
-      var month = (today.getUTCMonth() + 1 < 10 ? '0' : '') + (today.getUTCMonth() + 1);
-      var day = (today.getUTCDate() < 10 ? '0' : '') + today.getUTCDate();
-      var year = today.getUTCFullYear();
+      var month = (today.getMonth() + 1 < 10 ? '0' : '') + (today.getMonth() + 1);
+      var day = (today.getDate() < 10 ? '0' : '') + today.getDate();
+      var year = today.getFullYear();
 
       var date = year + "-" + month + "-" + day;
 
@@ -96,9 +96,9 @@ router.get('/getLum', async (req, res) => {
       return res.status(400).json({ message: "User não existe." })
     } else {
       var today = new Date();
-      var month = (today.getUTCMonth() + 1 < 10 ? '0' : '') + (today.getUTCMonth() + 1);
-      var day = (today.getUTCDate() < 10 ? '0' : '') + today.getUTCDate();
-      var year = today.getUTCFullYear();
+      var month = (today.getMonth() + 1 < 10 ? '0' : '') + (today.getMonth() + 1);
+      var day = (today.getDate() < 10 ? '0' : '') + today.getDate();
+      var year = today.getFullYear();
 
       var date = year + "-" + month + "-" + day;
 
