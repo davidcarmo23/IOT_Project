@@ -71,7 +71,7 @@ const mqttUser = 'admin';
 const mqttPassword = 'admin';
 
 
-const client = mqtt.connect(mqttServer,{username: mqttUser, password: mqttPassword});
+const client = mqtt.connect(mqttServer);
 
 
 // Inicialização da Comunicação com o broker MQTT e subscrição aos tópicos

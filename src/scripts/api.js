@@ -1,7 +1,10 @@
+//executar função para verificar se o utilizador está logado
+
+
 let logado = true;
 
 async function getTemp() {
-    const res = await fetch('https://localhost:3000/getTemp');
+    const res = await fetch('https://localhost:3000/data_retrieval/getTemp');
     const data = await res.json();
 
     if (res.status === 401) {
@@ -24,7 +27,7 @@ async function getTemp() {
 }
 
 async function getHum() {
-    const res = await fetch('https://localhost:3000/getHum');
+    const res = await fetch('https://localhost:3000/data_retrieval/getHum');
     const data = await res.json();
 
     if (res.status !== 200)
@@ -41,7 +44,7 @@ async function getHum() {
 }
 
 async function getLum() {
-    const res = await fetch('https://localhost:3000/getLum');
+    const res = await fetch('https://localhost:3000/data_retrieval/getLum');
     const data = await res.json();
 
     if (res.status !== 200)
@@ -58,7 +61,7 @@ async function getLum() {
 }
 
 async function getFire() {
-    const res = await fetch('https://localhost:3000/getFire');
+    const res = await fetch('https://localhost:3000/data_retrieval/getFire');
     const data = await res.json();
 
     if (res.status !== 200)
@@ -76,7 +79,7 @@ async function getFire() {
 
 let alarme_status = false;
 async function getAlarm() {
-    const res = await fetch('https://localhost:3000/getAlarm');
+    const res = await fetch('https://localhost:3000/data_retrieval/getAlarm');
     const data = await res.json();
 
     if (res.status !== 200)
@@ -98,7 +101,7 @@ async function mudarAlarme() {
         return;
 
     if (alarme_status) {
-        const res = await fetch('https://localhost:3000/disableAlarm');
+        const res = await fetch('https://localhost:3000/data_retrieval/disableAlarm');
         const data = await res.json();
 
         if (res.status === 401) {
@@ -117,7 +120,7 @@ async function mudarAlarme() {
         }
 
     } else {
-        const res = await fetch('https://localhost:3000/activateAlarm');
+        const res = await fetch('https://localhost:3000/data_retrieval/activateAlarm');
         const data = await res.json();
 
         if (res.status === 401) {
@@ -140,7 +143,7 @@ async function mudarAlarme() {
 let luz_divisao1_status = false;
 let luz_divisao2_status = false;
 async function getLights() {
-    const res = await fetch('https://localhost:3000/getLights');
+    const res = await fetch('https://localhost:3000/data_retrieval/getLights');
     const data = await res.json();
 
     if (res.status !== 200)
@@ -171,7 +174,7 @@ async function mudarLuz1() {
         return;
 
     if (luz_divisao1_status) {
-        const res = await fetch('https://localhost:3000/disableLight', {
+        const res = await fetch('https://localhost:3000/data_retrieval/disableLight', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -198,7 +201,7 @@ async function mudarLuz1() {
         }
 
     } else {
-        const res = await fetch('https://localhost:3000/activateLight', {
+        const res = await fetch('https://localhost:3000/data_retrieval/activateLight', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -231,7 +234,7 @@ async function mudarLuz2() {
         return;
 
     if (luz_divisao2_status) {
-        const res = await fetch('https://localhost:3000/disableLight', {
+        const res = await fetch('https://localhost:3000/data_retrieval/disableLight', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -258,7 +261,7 @@ async function mudarLuz2() {
         }
 
     } else {
-        const res = await fetch('https://localhost:3000/activateLight', {
+        const res = await fetch('https://localhost:3000/data_retrieval/activateLight', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -289,7 +292,7 @@ async function mudarLuz2() {
 let janela1_status = false;
 let janela2_status = false;
 async function getWindows() {
-    const res = await fetch('https://localhost:3000/getWindows');
+    const res = await fetch('https://localhost:3000/data_retrieval/getWindows');
     const data = await res.json();
 
     if (res.status !== 200)
@@ -320,7 +323,7 @@ async function mudarJanela1() {
         return;
 
     if (janela1_status) {
-        const res = await fetch('https://localhost:3000/disableWindow', {
+        const res = await fetch('https://localhost:3000/data_retrieval/disableWindow', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -347,7 +350,7 @@ async function mudarJanela1() {
         }
 
     } else {
-        const res = await fetch('https://localhost:3000/activateWindow', {
+        const res = await fetch('https://localhost:3000/data_retrieval/activateWindow', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -380,7 +383,7 @@ async function mudarJanela2() {
         return;
 
     if (janela2_status) {
-        const res = await fetch('https://localhost:3000/disableWindow', {
+        const res = await fetch('https://localhost:3000/data_retrieval/disableWindow', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -407,7 +410,7 @@ async function mudarJanela2() {
         }
 
     } else {
-        const res = await fetch('https://localhost:3000/activateWindow', {
+        const res = await fetch('https://localhost:3000/data_retrieval/activateWindow', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

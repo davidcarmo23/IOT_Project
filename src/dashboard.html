@@ -143,11 +143,11 @@
 
     // logout
     async function logout() {
-      const res = await fetch('https://localhost:3000/logout');
+      const res = await fetch('https://localhost:3000/auth/logout');
       const data = await res.json();
 
       if (data.successMessage) {
-        window.location.replace("https://localhost:3000/login");
+        window.location.replace("https://localhost:3000/auth/login");
       } else {
         alert(data.error);
       }
