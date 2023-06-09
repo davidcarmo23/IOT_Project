@@ -173,23 +173,9 @@
   </div>
 
   <button onclick="logout()">Logout</button><br>
-  
-  <div class="rightD">
-    <h2>Todos os valores de temperatura registados hoje: </h2>
-    <ul id="all-temps"></ul>
-  </div>
-  <h2>Última humidade registada: </h2>
-  <p id="last-hum"></p>
-  <h2>Todos os valores de humidade registados hoje: </h2>
-  <ul id="all-hums"></ul>
 
-  <h2>Última luminosidade registada: </h2>
-  <p id="last-lum"></p>
-  <h2>Todos os valores de luminosidade registados hoje: </h2>
-  <ul id="all-lums"></ul>
-
-  <h2>Último fogo ocorreu a: </h2>
-  <p id="last-fire"></p>
+  <!--<h2>Último fogo ocorreu a: </h2>
+  <p id="last-fire"></p>-->
   
 
 
@@ -226,6 +212,81 @@
     // Update the current time every minute
     setInterval(updateCurrentTime, 60000);
 
+    // Get all the existing list items
+    var listItems = document.querySelectorAll("#myList li");
+
+    // Attach event listeners to each item's text
+    listItems.forEach(function(item) {
+      var text = item.querySelector(".heading-9");
+      text.addEventListener("click", function() {
+        // Remove the clicked item from the list
+        item.remove();
+      });
+    });
+
+    // Add event listener for the "Add" button
+    document.getElementById("addButton").addEventListener("click", function() {
+      var newItem = document.createElement("li");
+      var newHeading = document.createElement("h3");
+      newHeading.className = "heading-9";
+
+      var userInput = prompt("Enter the item text:");
+      var textNode = document.createTextNode(userInput);
+
+      var checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "checkbox";
+
+      var checkboxWrapper = document.createElement("div");
+      checkboxWrapper.className = "checkbox-wrapper";
+      checkboxWrapper.appendChild(checkbox);
+
+      var customCheckbox = document.createElement("span");
+      customCheckbox.className = "custom-checkbox";
+      checkboxWrapper.appendChild(customCheckbox);
+
+      newHeading.appendChild(textNode);
+      newItem.appendChild(newHeading);
+      newItem.appendChild(checkboxWrapper);
+      document.getElementById("myList").appendChild(newItem);
+
+      // Attach the click event listener to the newly added item's text
+      newHeading.addEventListener("click", function() {
+        newItem.remove();
+      });
+    });
+
+
+    window.addEventListener('DOMContentLoaded', (event) => {
+      // Hide all charts
+      const charts = document.getElementsByTagName('canvas');
+      for (let i = 0; i < charts.length; i++) {
+        charts[i].style.display = 'none';
+      }
+
+      // Show the default chart (Temperature)
+      const defaultChart = document.getElementById('Temperatura');
+      defaultChart.style.display = 'block';
+    });
+
+    function showChart(chartId) {
+      // Hide all charts
+      const charts = document.getElementsByTagName('canvas');
+      for (let i = 0; i < charts.length; i++) {
+        charts[i].style.display = 'none';
+      }
+
+      // Show the selected chart
+      const selectedChart = document.getElementById(chartId);
+      selectedChart.style.display = 'block';
+    }
+
+    // Generate labels starting from midnight and looping for the next 24 hours
+    const labels = Array.from({ length: 24 }, (_, i) => {
+      const hour = i;
+      return `${hour.toString().padStart(2, '0')}:00`;
+    });
+
     // logout
     async function logout() {
       const res = await fetch('https://localhost:3000/auth/logout');
@@ -237,185 +298,6 @@
         alert(data.error);
       }
     }
-// Get all the existing list items
-var listItems = document.querySelectorAll("#myList li");
-
-// Attach event listeners to each item's text
-listItems.forEach(function(item) {
-  var text = item.querySelector(".heading-9");
-  text.addEventListener("click", function() {
-    // Remove the clicked item from the list
-    item.remove();
-  });
-});
-
-// Add event listener for the "Add" button
-document.getElementById("addButton").addEventListener("click", function() {
-  var newItem = document.createElement("li");
-  var newHeading = document.createElement("h3");
-  newHeading.className = "heading-9";
-
-  var userInput = prompt("Enter the item text:");
-  var textNode = document.createTextNode(userInput);
-
-  var checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.className = "checkbox";
-
-  var checkboxWrapper = document.createElement("div");
-  checkboxWrapper.className = "checkbox-wrapper";
-  checkboxWrapper.appendChild(checkbox);
-
-  var customCheckbox = document.createElement("span");
-  customCheckbox.className = "custom-checkbox";
-  checkboxWrapper.appendChild(customCheckbox);
-
-  newHeading.appendChild(textNode);
-  newItem.appendChild(newHeading);
-  newItem.appendChild(checkboxWrapper);
-  document.getElementById("myList").appendChild(newItem);
-
-  // Attach the click event listener to the newly added item's text
-  newHeading.addEventListener("click", function() {
-    newItem.remove();
-  });
-});
-
-
-
-window.addEventListener('DOMContentLoaded', (event) => {
-  // Hide all charts
-  const charts = document.getElementsByTagName('canvas');
-  for (let i = 0; i < charts.length; i++) {
-    charts[i].style.display = 'none';
-  }
-
-  // Show the default chart (Temperature)
-  const defaultChart = document.getElementById('Temperatura');
-  defaultChart.style.display = 'block';
-});
-
-function showChart(chartId) {
-  // Hide all charts
-  const charts = document.getElementsByTagName('canvas');
-  for (let i = 0; i < charts.length; i++) {
-    charts[i].style.display = 'none';
-  }
-
-  // Show the selected chart
-  const selectedChart = document.getElementById(chartId);
-  selectedChart.style.display = 'block';
-}
-
-// Generate labels starting from midnight and looping for the next 24 hours
-const labels = Array.from({ length: 24 }, (_, i) => {
-  const hour = i;
-  return `${hour.toString().padStart(2, '0')}:00`;
-});
-
-//grafico Temperatura
-const ctx = document.getElementById('Temperatura').getContext('2d');
-const Temperatura = new Chart(ctx, {
-  type: 'line',
-  options: {
-    scales: {
-      y: {
-        min: 0,
-        max: 30,
-        ticks: {
-          stepSize: 5
-        }
-      }
-    }
-  },
-  data: {
-    labels: labels,
-    datasets: [
-      {
-        label: 'Temperature',
-        data: [19, 17, 14, 15, 12, 14, 15, 18, 19, 20, 22, 21, 20, 19, 17, 16, 15, 15, 14],
-        fill: false,
-        borderColor: 'rgb(16, 36, 68)',
-        tension: 0.1
-      },
-    ],
-  },
-  plugins: {
-    legend: {
-      display: false
-    }
-  }
-});
-
-//grafico Luminosidade
-const ctx2 = document.getElementById('Luminosidade').getContext('2d');
-const Luminosidade = new Chart(ctx2, {
-  type: 'line',
-  options: {
-    scales: {
-      y: {
-        min: 0,
-        max: 30,
-        ticks: {
-          stepSize: 5
-        }
-      }
-    }
-  },
-  data: {
-    labels: labels,
-    datasets: [
-      {
-        label: 'Luminosity',
-        data: [19, 17, 14, 15, 12, 14, 15, 18, 19, 20],
-        fill: false,
-        borderColor: 'rgb(16, 36, 68)',
-        tension: 0.1
-      },
-    ],
-  },
-  plugins: {
-    legend: {
-      display: false
-    }
-  }
-});
-
-//grafico humidade
-const ctx3 = document.getElementById('Humidade').getContext('2d');
-const Humidade = new Chart(ctx3, {
-  type: 'line',
-  options: {
-    scales: {
-      y: {
-        min: 0,
-        max: 30,
-        ticks: {
-          stepSize: 5
-        }
-      }
-    }
-  },
-  data: {
-    labels: labels,
-    datasets: [
-      {
-        label: 'Humidity',
-        data: [19, 17, 14, 15, 12, 14, 15],
-        fill: false,
-        borderColor: 'rgb(16, 36, 68)',
-        tension: 0.1
-      },
-    ],
-  },
-  plugins: {
-    legend: {
-      display: false
-    }
-  }
-});
-
-
 
   </script>
   <script type="text/javascript" src="scripts/api.js"></script>

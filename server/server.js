@@ -76,14 +76,15 @@ const client = mqtt.connect(mqttServer);
 
 // Inicialização da Comunicação com o broker MQTT e subscrição aos tópicos
 const temperatureTopic = '+/temperatura';
-const luminosidadeTopic = '+/luminosidade';
-const movimentoTopic = '+/movimento';
-const luzesTopic = '+/lights';
-const fogoTopic = '+/fogo';
 const humidadeTopic = '+/humidade';
+const luminosidadeTopic = '+/luminosidade';
+const fogoTopic = '+/fogo';
+const movimentoTopic = '+/movimento';
+const luzesTopic = '+/luzes';
+const janelasTopic = '+/janelas';
 client.on("connect", function () {
   console.log("connected");
-  client.subscribe(temperatureTopic, luminosidadeTopic, movimentoTopic, luzesTopic, fogoTopic, humidadeTopic);
+  client.subscribe([temperatureTopic, humidadeTopic, luminosidadeTopic, fogoTopic, movimentoTopic, luzesTopic, janelasTopic]);
 
 })
 
@@ -328,6 +329,7 @@ client.on('message', function (topic, message, packet) {
           try {
             var msg = Buffer.from(message).toString('utf8');
             var janela = msg.split('/')[0];
+            console.log(janela)
             var estado = (msg.split('/')[1] === 'true');
 
             // Ler objeto

@@ -15,11 +15,7 @@ async function getTemp() {
     else {
         document.getElementById('last-temp').innerText = data.lastTemp;
 
-        data.temperatura.forEach(temp => {
-            const markup = `<li>${temp}</li>`;
-
-            document.getElementById('all-temps').insertAdjacentHTML('beforeend', markup);
-        });
+        graphTemperatura(data.temperatura)
     }
 }
 
@@ -32,11 +28,7 @@ async function getHum() {
     else {
         document.getElementById('last-hum').innerText = data.lastHum;
 
-        data.humidade.forEach(hum => {
-            const markup = `<li>${hum}</li>`;
-
-            document.getElementById('all-hums').insertAdjacentHTML('beforeend', markup);
-        });
+        graphHumidade(data.humidade)
     }
 }
 
@@ -49,11 +41,7 @@ async function getLum() {
     else {
         document.getElementById('last-lum').innerText = data.lastLum;
 
-        data.luminosidade.forEach(lum => {
-            const markup = `<li>${lum}</li>`;
-
-            document.getElementById('all-lums').insertAdjacentHTML('beforeend', markup);
-        });
+        graphLuminosidade(data.luminosidade)
     }
 }
 
@@ -348,3 +336,112 @@ getTemp().then(() => {
         getWindows();
     }
 })
+
+// Gráficos
+// grafico Temperatura
+function graphTemperatura(array) {
+    const ctx = document.getElementById('Temperatura').getContext('2d');
+    const Temperatura = new Chart(ctx, {
+        type: 'line',
+        options: {
+            scales: {
+                y: {
+                    min: 5,
+                    max: 25,
+                    ticks: {
+                        stepSize: 5
+                    }
+                }
+            }
+        },
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Temperature',
+                    data: array,
+                    fill: false,
+                    borderColor: 'rgb(16, 36, 68)',
+                    tension: 0.1
+                },
+            ],
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    });
+}
+
+// grafico humidade
+function graphHumidade(array) {
+    const ctx = document.getElementById('Humidade').getContext('2d');
+    const Humidade = new Chart(ctx, {
+        type: 'line',
+        options: {
+            scales: {
+                y: {
+                    min: 40,
+                    max: 80,
+                    ticks: {
+                        stepSize: 5
+                    }
+                }
+            }
+        },
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Humidity',
+                    data: array,
+                    fill: false,
+                    borderColor: 'rgb(16, 36, 68)',
+                    tension: 0.1
+                },
+            ],
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    });
+}
+
+// grafico Luminosidade
+function graphLuminosidade(array) {
+    const ctx = document.getElementById('Luminosidade').getContext('2d');
+    const Luminosidade = new Chart(ctx, {
+        type: 'line',
+        options: {
+            scales: {
+                y: {
+                    min: 300,
+                    max: 900,
+                    ticks: {
+                        stepSize: 5
+                    }
+                }
+            }
+        },
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Luminosity',
+                    data: array,
+                    fill: false,
+                    borderColor: 'rgb(16, 36, 68)',
+                    tension: 0.1
+                },
+            ],
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    });
+}

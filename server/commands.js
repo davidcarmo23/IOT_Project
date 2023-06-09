@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
 const verifyToken = require('./verifyToken');
-const {mqttServer} =  require("../../env")
+const mqtt = require('mqtt');
+const {mqttServer} =  require("./env")
 const client = mqtt.connect(mqttServer);
 
 // Desativar alarme
