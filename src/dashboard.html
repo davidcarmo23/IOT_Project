@@ -280,6 +280,18 @@ document.getElementById("addButton").addEventListener("click", function() {
 
 
 
+window.addEventListener('DOMContentLoaded', (event) => {
+  // Hide all charts
+  const charts = document.getElementsByTagName('canvas');
+  for (let i = 0; i < charts.length; i++) {
+    charts[i].style.display = 'none';
+  }
+
+  // Show the default chart (Temperature)
+  const defaultChart = document.getElementById('Temperatura');
+  defaultChart.style.display = 'block';
+});
+
 function showChart(chartId) {
   // Hide all charts
   const charts = document.getElementsByTagName('canvas');
