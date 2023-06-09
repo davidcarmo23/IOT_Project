@@ -10,10 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
-
-
-
-
 <body>
   <div class="dashboard_wrapper">
     <div class="layout">
@@ -22,20 +18,46 @@
         <div>
           <img src="Line.png" loading="lazy" width="200" alt=""class="line">
           <div class="temperature">
-            <h1 id="last-temp",class="temperature2">°</h1>
+            <h1 id="last-temp" class="temperature2">°</h1>
           </div><img src="Line.png" loading="lazy" width="200" alt=""class="line">
           <div class="undertemperature">
             <div class="undertemperature2">
+              
+            <div class="switch-container">
               <h3 class="lights">Light 1</h3>
+              <label class="switch">
+                <input type="checkbox" id="divisao1" onchange="mudarLuz1()">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="switch-container">
               <h3 class="lights">Light 2</h3>
+              <label class="switch">
+                <input type="checkbox" id="divisao2" onchange="mudarLuz2()">
+                <span class="slider round"></span>
+              </label>
+            </div>
             </div>
           </div>
           <div class="windows">
+
+            <div class="switch-container">
             <h3 class="lights">Windows</h3>
+            <label class="switch" style="margin-right: 5px; margin-left: 26px;">
+              <input type="checkbox">
+              <span class="slider round"></span>
+            </label>
+            </div>
+
           </div>
           <img src="Line.png" loading="lazy" width="200" alt=""class="line">
           <div class="alarm">
-            <h3 class="alarm2">House Alarm</h3>
+            <h3 class="alarm2" style="margin-bottom: 10px; margin-top: 10px;">House Alarm</h3>
+            <label class="switch">
+              <input type="checkbox">
+              <span class="slider round"></span>
+            </label>
           </div>
         </div>
         <div></div>
@@ -63,16 +85,67 @@
       </div>
       <div class="last">
         <div class="div17">
-          <h4 class="name">Welcome back Alberto</h4><img src="profile.png" loading="lazy" width="55" height="55" srcset="profile.png 500w, profile.png 512w" sizes="75px" alt="" class="name2">
+          <h4 class="name">Welcome back Alberto</h4><img src="profile.png" loading="lazy" width="55" height="55" srcset="profile.png 500w, profile.png 512w" sizes="75px" alt="" class="name2" style="margin-right: 40px;">
         </div>
-        <img src="Line2.png" loading="lazy" width="250" alt="" class="line">
+        <img src="Line2.png" loading="lazy" width="280" alt="" class="line" style="margin-left: 70px; margin-right: 0px;">
         <h1 class="heading-8">Widgets</h1>
         <div class="div-block-20">
-          <div class="text-block-2">To do</div>
-          <h3 class="heading-9">Workout</h3>
-          <h3 class="heading-9">Go shopping</h3>
-          <h3 class="heading-9">Iot Project</h3>
-          <h3 class="heading-9">Take a vacation</h3>
+          <div class="text-block-2" style="padding-top: 20px;">To do</div>
+          <ul id="myList">
+            <li>
+              <div>
+                <h3 class="heading-9">Workout</h3>
+              </div>
+              <div class="checkbox-container">
+                <label>
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" class="checkbox">
+                    <span class="custom-checkbox"></span>
+                  </div>
+                </label>
+              </div>
+            </li>
+            <li>
+              <div>
+                <h3 class="heading-9">Go shopping</h3>
+              </div>
+              <div class="checkbox-container">
+                <label>
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" class="checkbox">
+                    <span class="custom-checkbox"></span>
+                  </div>
+                </label>
+              </div>
+            </li>
+            <li>
+              <div>
+                <h3 class="heading-9">Iot Project</h3>
+              </div>
+              <div class="checkbox-container">
+                <label>
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" class="checkbox">
+                    <span class="custom-checkbox"></span>
+                  </div>
+                </label>
+              </div>
+            </li>
+            <li>
+              <div>
+                <h3 class="heading-9">Take a vacation</h3>
+              </div>
+              <div class="checkbox-container">
+                <label>
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" class="checkbox">
+                    <span class="custom-checkbox"></span>
+                  </div>
+                </label>
+              </div>
+            </li>
+          </ul>
+          <button id="addButton">Add Item</button>
           <div class="div-block-22">
             <h1 class="clock">Lock House</h1>
         </div>
@@ -100,9 +173,6 @@
   <h2>Último fogo ocorreu a: </h2>
   <p id="last-fire"></p>
 
-  <button id="divisao1" onclick="mudarLuz1()"></button>
-  <button id="divisao2" onclick="mudarLuz2()"></button>
-  <br>
   <button id="janela1" onclick="mudarJanela1()"></button>
   <button id="janela2" onclick="mudarJanela2()"></button>
   
@@ -147,12 +217,45 @@
       const data = await res.json();
 
       if (data.successMessage) {
-        window.location.replace("https://localhost:3000/auth/login");
+        window.location.replace("https://localhost:3000/login");
       } else {
         alert(data.error);
       }
     }
-      
+    document.getElementById("addButton").addEventListener("click", function() {
+      var newItem = document.createElement("li");
+      var newHeading = document.createElement("h3");
+      newHeading.className = "heading-9";
+
+      var userInput = prompt("Enter the item text:");
+      var textNode = document.createTextNode(userInput);
+
+      var checkboxWrapper = document.createElement("div");
+      checkboxWrapper.className = "checkbox-wrapper";
+
+      var checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "checkbox";
+
+      var customCheckbox = document.createElement("span");
+      customCheckbox.className = "custom-checkbox";
+
+      checkboxWrapper.appendChild(checkbox);
+      checkboxWrapper.appendChild(customCheckbox);
+
+      newHeading.appendChild(textNode);
+      newItem.appendChild(newHeading);
+      newItem.appendChild(checkboxWrapper);
+      document.getElementById("myList").appendChild(newItem);
+
+      checkbox.addEventListener("change", function() {
+        if (checkbox.checked) {
+          customCheckbox.style.backgroundColor = "#ccc";
+        } else {
+          customCheckbox.style.backgroundColor = "";
+        }
+      });
+    });
   </script>
   <script type="text/javascript" src="scripts/api.js"></script>
 

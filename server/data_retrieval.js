@@ -212,7 +212,7 @@ router.get('/getAlarm',verifyToken , async (req, res) => {
     }
   });
 
-  
+
 // Obter estado das luzes
 router.get('/getLights',verifyToken , async (req, res) => {
     try {
