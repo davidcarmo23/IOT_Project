@@ -177,4 +177,37 @@ router.post('/activateWindow',  async (req, res) => {
   }
 });
 
+// Lock house
+router.get('/lockHouse', async (req, res) => {
+  try {
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+
+      // Fechar / desativar todas as funcionalidades da casa
+      const resDoc = await userRef.update({
+        "luzes.divisao1": false,
+        "luzes.divisao2": false,
+        "janelas.janela1": false,
+        "movimento.alarme": true
+      })
+
+      // TODO: enviar comandos para o arduino
+
+      return res.status(200).json({ message: "ok" })
+    }
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
 module.exports = router;
