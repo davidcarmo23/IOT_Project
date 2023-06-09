@@ -231,7 +231,7 @@
       const data = await res.json();
 
       if (data.successMessage) {
-        window.location.replace("https://localhost:3000/auth/login");
+        window.location.replace("https://localhost:3000/login");
       } else {
         alert(data.error);
       }

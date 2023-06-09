@@ -81,13 +81,13 @@ const movimentoTopic = '+/movimento';
 const luzesTopic = '+/luzes';
 const fogoTopic = '+/fogo';
 const humidadeTopic = '+/humidade';
-client.on("connect",function(){	
+client.on("connect", function () {
   console.log("connected");
   client.subscribe(temperatureTopic, luminosidadeTopic, movimentoTopic, luzesTopic, fogoTopic, humidadeTopic);
-  
+
 })
 
-client.on('message', function(topic, message, packet){
+client.on('message', function (topic, message, packet) {
 
   //arranjar maneira de passar o ip do cliente para o server 
   //ou seja userid/temperatura
@@ -281,14 +281,14 @@ client.on('message', function(topic, message, packet){
             }
 
 
-            } catch (error) {
-              console.log("Error getting doc " + error);
-            }
-        
+          } catch (error) {
+            console.log("Error getting doc " + error);
           }
-        
-          // FEITO
-          if (topic_ext == "luzes") {
+
+        }
+
+        // FEITO
+        if (topic_ext == "luzes") {
 
           try {
             var msg = Buffer.from(message).toString('utf8');
@@ -300,12 +300,12 @@ client.on('message', function(topic, message, packet){
             const luzesDoc = await databaseRef.get();
             const luzesObj = luzesDoc.data().luzes;
 
-              if (luzesObj == null) {
-                // Inserir luzes pela primeira vez
-                const res = await databaseRef.update({
-                  'luzes.divisao1': false,
-                  'luzes.divisao2': false
-                })
+            if (luzesObj == null) {
+              // Inserir luzes pela primeira vez
+              const res = await databaseRef.update({
+                'luzes.divisao1': false,
+                'luzes.divisao2': false
+              })
 
             } else {
               // Atualiza divisao
@@ -322,8 +322,8 @@ client.on('message', function(topic, message, packet){
 
         }
 
-          // FEITO
-          if (topic_ext == "janelas") {
+        // FEITO
+        if (topic_ext == "janelas") {
 
           try {
             var msg = Buffer.from(message).toString('utf8');
