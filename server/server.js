@@ -25,6 +25,7 @@ const port = 3000
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
 //para o css
 app.use(express.static(path.join(__dirname, '/../src'), {
   setHeaders: (res, filePath) => {
@@ -66,32 +67,30 @@ server.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
 // MQTT Mosquitto
 const mqtt = require('mqtt');
-const mqttServer = 'mqtt://127.0.0.1:1883';
+const { mqttServer } = require('./env');
 const mqttUser = 'admin';
 const mqttPassword = 'admin';
 
 
 const client = mqtt.connect(mqttServer);
 
-
 // Inicialização da Comunicação com o broker MQTT e subscrição aos tópicos
-const temperatureTopic = '+/temperatura';
-const luminosidadeTopic = '+/luminosidade';
-const movimentoTopic = '+/movimento';
-const luzesTopic = '+/luzes';
-const fogoTopic = '+/fogo';
-const humidadeTopic = '+/humidade';
-client.on("connect", function () {
-  console.log("connected");
-  client.subscribe(temperatureTopic, luminosidadeTopic, movimentoTopic, luzesTopic, fogoTopic, humidadeTopic);
+const temperatureTopic = '+/temperatura'; //
+const luminosidadeTopic = '+/luminosidade';//
+const movimentoTopic = '+/movimento';//
+const luzesTopic = '+/light1';// 
+const luzes2Topic = '+/light2';// 
+const fogoTopic = '+/fogo';//
+const humidadeTopic = '+/humidade';//
 
+
+client.on("connect",function(){	
+  console.log("connected");
+  client.subscribe(temperatureTopic, luminosidadeTopic, movimentoTopic, luzesTopic,luzes2Topic, fogoTopic, humidadeTopic);
+  
 })
 
-client.on('message', function (topic, message, packet) {
-
-  //arranjar maneira de passar o ip do cliente para o server 
-  //ou seja userid/temperatura
-
+client.on('message', function(topic, message, packet){
   const associated_user = topic.split('/')[0]
   const topic_ext = topic.split('/')[1]
   console.log(associated_user)
@@ -281,14 +280,14 @@ client.on('message', function (topic, message, packet) {
             }
 
 
-          } catch (error) {
-            console.log("Error getting doc " + error);
+            } catch (error) {
+              console.log("Error getting doc " + error);
+            }
+        
           }
-
-        }
-
-        // FEITO
-        if (topic_ext == "luzes") {
+        
+          // FEITO
+          if (topic_ext == "light1") {
 
           try {
             var msg = Buffer.from(message).toString('utf8');
@@ -300,12 +299,43 @@ client.on('message', function (topic, message, packet) {
             const luzesDoc = await databaseRef.get();
             const luzesObj = luzesDoc.data().luzes;
 
-            if (luzesObj == null) {
-              // Inserir luzes pela primeira vez
-              const res = await databaseRef.update({
-                'luzes.divisao1': false,
-                'luzes.divisao2': false
-              })
+              if (luzesObj == null) {
+                // Inserir luzes pela primeira vez
+                const res = await databaseRef.update({
+                  'luzes.divisao1': false,
+                })
+
+              } else {
+                // Atualiza divisao
+                const path = "luzes." + divisao;
+                const res = await databaseRef.update({
+                  [path]: estado
+                })
+              }
+
+
+            } catch (error) {
+              console.log("Error getting doc " + error);
+            }
+
+          }
+          if (topic_ext == "light2") {
+
+            try {
+              var msg = Buffer.from(message).toString('utf8');
+              var divisao = msg.split('/')[0];
+              var estado = (msg.split('/')[1] === 'true');
+
+              // Ler objeto
+              var databaseRef = db.collection('users').doc(uid);
+              const luzesDoc = await databaseRef.get();
+              const luzesObj = luzesDoc.data().luzes;
+
+              if (luzesObj == null) {
+                // Inserir luzes pela primeira vez
+                const res = await databaseRef.update({
+                  'luzes.divisao2': false,
+                })
 
             } else {
               // Atualiza divisao
@@ -322,8 +352,8 @@ client.on('message', function (topic, message, packet) {
 
         }
 
-        // FEITO
-        if (topic_ext == "janelas") {
+          // FEITO
+          if (topic_ext == "windows") {
 
           try {
             var msg = Buffer.from(message).toString('utf8');
