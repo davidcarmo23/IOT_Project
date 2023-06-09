@@ -264,14 +264,12 @@ router.get('/getWindows', async (req, res) => {
       if (janelasObj == null) {
         // Janelas ainda não foram definidas, meter a falso
         const resDoc = await userRef.update({
-          'janelas.janela1': false,
-          'janelas.janela2': false
+          'janelas.janela1': false
         })
-        return res.status(200).json({ janela1: false, janela2: false })
+        return res.status(200).json({ janela1: false })
       } else {
         const janela1 = janelasObj.janela1;
-        const janela2 = janelasObj.janela2;
-        return res.status(200).json({ janela1: janela1, janela2: janela2 })
+        return res.status(200).json({ janela1: janela1 })
       }
     }
 
