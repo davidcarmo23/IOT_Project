@@ -2,9 +2,14 @@ const e = require('express');
 const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
+const verifyToken = require('./verifyToken');
+const mqtt = require('mqtt');
+const { mqttServer } = require('./env');
+
+const client = mqtt.connect(mqttServer);
 
 // Desativar alarme
-router.post('/disableAlarm', async (req, res) => {
+router.post('/disableAlarm', verifyToken ,async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
       if (user_uid == null)
@@ -21,7 +26,7 @@ router.post('/disableAlarm', async (req, res) => {
           'movimento.alarme': false
         })
   
-        // TODO: desativar alarme no arduino
+        client.publish('alarm', '0');
   
         return res.status(200).json({ message: "ok" })
       }
@@ -32,7 +37,7 @@ router.post('/disableAlarm', async (req, res) => {
   });
 
   // Ativar alarme
-  router.post('/activateAlarm', async (req, res) => {
+router.post('/activateAlarm',verifyToken ,async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
       if (user_uid == null)
@@ -48,9 +53,8 @@ router.post('/disableAlarm', async (req, res) => {
         const resDoc = await userRef.update({
           'movimento.alarme': true
         })
-  
-        // TODO: ativar alarme no arduino
-  
+
+        client.publish('alarm', '1');
         return res.status(200).json({ message: "ok" })
       }
   
@@ -60,9 +64,10 @@ router.post('/disableAlarm', async (req, res) => {
   });
 
 // Desativar luz
-router.post('/disableLight', async (req, res) => {
+router.post('/disableLight',verifyToken ,async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
+      var light = toString(req.body.lightID);
       if (user_uid == null)
         return res.status(401).json({ message: "User não está logado." })
   
@@ -77,9 +82,8 @@ router.post('/disableLight', async (req, res) => {
         const resDoc = await userRef.update({
           [path]: false
         })
-  
-        // TODO: desativar luz no arduino
-  
+
+        client.publish(light, '0');
         return res.status(200).json({ message: "ok" })
       }
   
@@ -89,9 +93,10 @@ router.post('/disableLight', async (req, res) => {
   });
   
 // Ativar luz
-router.post('/activateLight', async (req, res) => {
+router.post('/activateLight',verifyToken ,async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
+      var light = toString(req.body.lightID);
       if (user_uid == null)
         return res.status(401).json({ message: "User não está logado." })
   
@@ -107,8 +112,7 @@ router.post('/activateLight', async (req, res) => {
           [path]: true
         })
   
-        // TODO: ativar luz no arduino
-  
+        client.publish(light, '0');
         return res.status(200).json({ message: "ok" })
       }
   
@@ -118,7 +122,7 @@ router.post('/activateLight', async (req, res) => {
   });
  
 // Desativar janela
-router.post('/disableWindow', async (req, res) => {
+router.post('/disableWindow',verifyToken ,async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
       if (user_uid == null)
@@ -136,8 +140,7 @@ router.post('/disableWindow', async (req, res) => {
           [path]: false
         })
   
-        // TODO: desativar janela no arduino
-  
+        client.publish('windows', '0');
         return res.status(200).json({ message: "ok" })
       }
   
@@ -147,7 +150,7 @@ router.post('/disableWindow', async (req, res) => {
   });
 
   // Ativar janela
-router.post('/activateWindow', async (req, res) => {
+router.post('/activateWindow',verifyToken ,async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
       if (user_uid == null)
@@ -165,8 +168,7 @@ router.post('/activateWindow', async (req, res) => {
           [path]: true
         })
   
-        // TODO: ativar janela no arduino
-  
+        client.publish('windows', '1');
         return res.status(200).json({ message: "ok" })
       }
   
