@@ -1,6 +1,3 @@
-//executar função para verificar se o utilizador está logado
-
-
 let logado = true;
 
 async function getTemp() {
@@ -101,7 +98,7 @@ async function mudarAlarme() {
         return;
 
     if (alarme_status) {
-        const res = await fetch('https://localhost:3000/data_retrieval/disableAlarm');
+        const res = await fetch('https://localhost:3000/commands/disableAlarm');
         const data = await res.json();
 
         if (res.status === 401) {
@@ -120,7 +117,7 @@ async function mudarAlarme() {
         }
 
     } else {
-        const res = await fetch('https://localhost:3000/data_retrieval/activateAlarm');
+        const res = await fetch('https://localhost:3000/commands/activateAlarm');
         const data = await res.json();
 
         if (res.status === 401) {
@@ -174,7 +171,7 @@ async function mudarLuz1() {
         return;
 
     if (luz_divisao1_status) {
-        const res = await fetch('https://localhost:3000/data_retrieval/disableLight', {
+        const res = await fetch('https://localhost:3000/commands/disableLight', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -201,7 +198,7 @@ async function mudarLuz1() {
         }
 
     } else {
-        const res = await fetch('https://localhost:3000/data_retrieval/activateLight', {
+        const res = await fetch('https://localhost:3000/commands/activateLight', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -234,7 +231,7 @@ async function mudarLuz2() {
         return;
 
     if (luz_divisao2_status) {
-        const res = await fetch('https://localhost:3000/data_retrieval/disableLight', {
+        const res = await fetch('https://localhost:3000/commands/disableLight', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -261,7 +258,7 @@ async function mudarLuz2() {
         }
 
     } else {
-        const res = await fetch('https://localhost:3000/data_retrieval/activateLight', {
+        const res = await fetch('https://localhost:3000/commands/activateLight', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -323,7 +320,7 @@ async function mudarJanela1() {
         return;
 
     if (janela1_status) {
-        const res = await fetch('https://localhost:3000/data_retrieval/disableWindow', {
+        const res = await fetch('https://localhost:3000/commands/disableWindow', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -350,7 +347,7 @@ async function mudarJanela1() {
         }
 
     } else {
-        const res = await fetch('https://localhost:3000/data_retrieval/activateWindow', {
+        const res = await fetch('https://localhost:3000/commands/activateWindow', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -383,7 +380,7 @@ async function mudarJanela2() {
         return;
 
     if (janela2_status) {
-        const res = await fetch('https://localhost:3000/data_retrieval/disableWindow', {
+        const res = await fetch('https://localhost:3000/commands/disableWindow', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -410,7 +407,7 @@ async function mudarJanela2() {
         }
 
     } else {
-        const res = await fetch('https://localhost:3000/data_retrieval/activateWindow', {
+        const res = await fetch('https://localhost:3000/commands/activateWindow', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
