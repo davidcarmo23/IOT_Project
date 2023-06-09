@@ -30,7 +30,7 @@
             <div class="switch-container">
               <h3 class="lights">Light 1</h3>
               <label class="switch">
-                <input type="checkbox">
+                <input type="checkbox" id="divisao1" onchange="changeLight(this.id)">
                 <span class="slider round"></span>
               </label>
             </div>
@@ -38,7 +38,7 @@
             <div class="switch-container">
               <h3 class="lights">Light 2</h3>
               <label class="switch">
-                <input type="checkbox">
+                <input type="checkbox" id="divisao2" onchange="changeLight(this.id)">
                 <span class="slider round"></span>
               </label>
             </div>
@@ -49,7 +49,7 @@
             <div class="switch-container">
             <h3 class="lights">Windows</h3>
             <label class="switch" style="margin-right: 5px; margin-left: 26px;">
-              <input type="checkbox">
+              <input type="checkbox" id="janela1" onchange="changeWindow(this.id)">
               <span class="slider round"></span>
             </label>
             </div>
@@ -179,12 +179,6 @@
 
   <h2>Último fogo ocorreu a: </h2>
   <p id="last-fire"></p>
-
-  <button id="divisao1" onclick="mudarLuz1()"></button>
-  <button id="divisao2" onclick="mudarLuz2()"></button>
-  <br>
-  <button id="janela1" onclick="mudarJanela1()"></button>
-  <button id="janela2" onclick="mudarJanela2()"></button>
   
 
 

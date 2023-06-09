@@ -248,37 +248,35 @@ router.get('/getLights', async (req, res) => {
 
 // Obter estado das janelas
 router.get('/getWindows', async (req, res) => {
-    try {
-      const user_uid = req.cookies.userID;
-      if (user_uid == null)
-        return res.status(401).json({ message: "User não está logado." })
-  
-      const db = admin.firestore();
-      const userRef = db.collection('users').doc(user_uid);
-      const doc = await userRef.get();
-      if (!doc.exists) {
-        // User não existe na dashboard, deve ser impossível (!)
-        return res.status(400).json({ message: "User não existe." })
+  try {
+    const user_uid = req.cookies.userID;
+    if (user_uid == null)
+      return res.status(401).json({ message: "User não está logado." })
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(user_uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      // User não existe na dashboard, deve ser impossível (!)
+      return res.status(400).json({ message: "User não existe." })
+    } else {
+      const janelasObj = doc.data().janelas;
+
+      if (janelasObj == null) {
+        // Janelas ainda não foram definidas, meter a falso
+        const resDoc = await userRef.update({
+          'janelas.janela1': false
+        })
+        return res.status(200).json({ janela1: false })
       } else {
-        const janelasObj = doc.data().janelas;
-  
-        if (janelasObj == null) {
-          // Janelas ainda não foram definidas, meter a falso
-          const resDoc = await userRef.update({
-            'janelas.janela1': false,
-            'janelas.janela2': false
-          })
-          return res.status(200).json({ janela1: false, janela2: false })
-        } else {
-          const janela1 = janelasObj.janela1;
-          const janela2 = janelasObj.janela2;
-          return res.status(200).json({ janela1: janela1, janela2: janela2 })
-        }
+        const janela1 = janelasObj.janela1;
+        return res.status(200).json({ janela1: janela1 })
       }
-  
-    } catch (error) {
-      return res.status(400).json({ message: error })
     }
-  });
-    
+
+  } catch (error) {
+    return res.status(400).json({ message: error })
+  }
+});
+
 module.exports = router;
