@@ -236,12 +236,31 @@
       var userInput = prompt("Enter the item text:");
       var textNode = document.createTextNode(userInput);
 
-      var checkboxWrapper = document.createElement("div");
-      checkboxWrapper.className = "checkbox-wrapper";
+// Add event listener for the "Add" button
+// Get all the existing list items
+var listItems = document.querySelectorAll("#myList li");
 
-      var checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.className = "checkbox";
+// Attach event listeners to each item's text
+listItems.forEach(function(item) {
+  var text = item.querySelector(".heading-9");
+  text.addEventListener("click", function() {
+    // Remove the clicked item from the list
+    item.remove();
+  });
+});
+
+// Add event listener for the "Add" button
+document.getElementById("addButton").addEventListener("click", function() {
+  var newItem = document.createElement("li");
+  var newHeading = document.createElement("h3");
+  newHeading.className = "heading-9";
+
+  var userInput = prompt("Enter the item text:");
+  var textNode = document.createTextNode(userInput);
+
+  var checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.className = "checkbox";
 
       var customCheckbox = document.createElement("span");
       customCheckbox.className = "custom-checkbox";
