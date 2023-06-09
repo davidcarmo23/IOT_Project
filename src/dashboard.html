@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="/style.css">
     <link rel="stylesheet" href="/font-awesome-4.7.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 </head>
 
 
@@ -78,17 +79,23 @@
         <div class="div8">
           <div class="pontos">
             <img src="green.png" loading="lazy" width="10" height="10" alt="" class="image-2">
-            <div class="text2">Temperature</div>
+            <div class="text2" onclick="showChart('Temperatura')">Temperature</div>
           </div>
           <div class="pontos">
             <img src="yellow.png" loading="lazy" width="10" height="10" alt="" class="image-2">
-            <div class="text2">Luminosity</div>
+            <div class="text2" onclick="showChart('Luminosidade')">Luminosity</div>
           </div>
           <div class="pontos">
             <img src="blue.png" loading="lazy" width="10" height="10" alt="" class="image-2">
-            <div class="text2">Humidity</div>
+            <div class="text2" onclick="showChart('Humidade')">Humidity</div>
           </div>
         </div>
+        <div>
+          <canvas id="Temperatura" width="800" height="450" style="margin-bottom: 40px; margin-left: 40px;"></canvas>
+          <canvas id="Luminosidade" width="800" height="450" style="margin-bottom: 40px; margin-left: 40px;"></canvas>
+          <canvas id="Humidade" width="800" height="450" style="margin-bottom: 40px; margin-left: 40px;"></canvas>
+        </div>
+        
         <div></div>
       </div>
       <div class="last">
@@ -279,6 +286,130 @@ document.getElementById("addButton").addEventListener("click", function() {
     newItem.remove();
   });
 });
+
+
+
+function showChart(chartId) {
+  // Hide all charts
+  const charts = document.getElementsByTagName('canvas');
+  for (let i = 0; i < charts.length; i++) {
+    charts[i].style.display = 'none';
+  }
+
+  // Show the selected chart
+  const selectedChart = document.getElementById(chartId);
+  selectedChart.style.display = 'block';
+}
+
+// Generate labels starting from midnight and looping for the next 24 hours
+const labels = Array.from({ length: 24 }, (_, i) => {
+  const hour = i;
+  return `${hour.toString().padStart(2, '0')}:00`;
+});
+
+//grafico Temperatura
+const ctx = document.getElementById('Temperatura').getContext('2d');
+const Temperatura = new Chart(ctx, {
+  type: 'line',
+  options: {
+    scales: {
+      y: {
+        min: 0,
+        max: 30,
+        ticks: {
+          stepSize: 5
+        }
+      }
+    }
+  },
+  data: {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Temperature',
+        data: [19, 17, 14, 15, 12, 14, 15, 18, 19, 20, 22, 21, 20, 19, 17, 16, 15, 15, 14],
+        fill: false,
+        borderColor: 'rgb(16, 36, 68)',
+        tension: 0.1
+      },
+    ],
+  },
+  plugins: {
+    legend: {
+      display: false
+    }
+  }
+});
+
+//grafico Luminosidade
+const ctx2 = document.getElementById('Luminosidade').getContext('2d');
+const Luminosidade = new Chart(ctx2, {
+  type: 'line',
+  options: {
+    scales: {
+      y: {
+        min: 0,
+        max: 30,
+        ticks: {
+          stepSize: 5
+        }
+      }
+    }
+  },
+  data: {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Luminosity',
+        data: [19, 17, 14, 15, 12, 14, 15, 18, 19, 20],
+        fill: false,
+        borderColor: 'rgb(16, 36, 68)',
+        tension: 0.1
+      },
+    ],
+  },
+  plugins: {
+    legend: {
+      display: false
+    }
+  }
+});
+
+//grafico humidade
+const ctx3 = document.getElementById('Humidade').getContext('2d');
+const Humidade = new Chart(ctx3, {
+  type: 'line',
+  options: {
+    scales: {
+      y: {
+        min: 0,
+        max: 30,
+        ticks: {
+          stepSize: 5
+        }
+      }
+    }
+  },
+  data: {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Humidity',
+        data: [19, 17, 14, 15, 12, 14, 15],
+        fill: false,
+        borderColor: 'rgb(16, 36, 68)',
+        tension: 0.1
+      },
+    ],
+  },
+  plugins: {
+    legend: {
+      display: false
+    }
+  }
+});
+
+
 
   </script>
   <script type="text/javascript" src="scripts/api.js"></script>
