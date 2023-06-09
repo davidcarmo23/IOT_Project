@@ -78,15 +78,15 @@ const client = mqtt.connect(mqttServer);
 const temperatureTopic = '+/temperatura'; //
 const luminosidadeTopic = '+/luminosidade';//
 const movimentoTopic = '+/movimento';//
-const luzesTopic = '+/light1';// 
-const luzes2Topic = '+/light2';// 
+const luzesTopic = '+/light1';// --
+const luzes2Topic = '+/light2';// --
 const fogoTopic = '+/fogo';//
 const humidadeTopic = '+/humidade';//
-
+const alarmeTopic = '+/alarm';// --
 
 client.on("connect",function(){	
   console.log("connected");
-  client.subscribe(temperatureTopic, luminosidadeTopic, movimentoTopic, luzesTopic,luzes2Topic, fogoTopic, humidadeTopic);
+  client.subscribe(temperatureTopic, luminosidadeTopic, movimentoTopic, luzesTopic,luzes2Topic, fogoTopic, humidadeTopic, alarmeTopic);
   
 })
 
