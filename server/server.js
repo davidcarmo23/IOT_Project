@@ -338,8 +338,7 @@ client.on('message', function (topic, message, packet) {
             if (janelasObj == null) {
               // Inserir janelas pela primeira vez
               const res = await databaseRef.update({
-                'janelas.janela1': false,
-                'janelas.janela2': false
+                'janelas.janela1': false
               })
 
             } else {

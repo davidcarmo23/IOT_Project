@@ -170,18 +170,18 @@ async function getLights() {
     }
 }
 
-async function mudarLuz1() {
+async function changeLight(divisao) {
     if (!logado)
         return;
 
-    if (luz_divisao1_status) {
+    if (eval("luz_" + divisao + "_status")) {
         const res = await fetch('https://localhost:3000/commands/disableLight', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                divisao: "divisao1"
+                divisao: divisao
             })
         });
         const data = await res.json();
@@ -196,9 +196,8 @@ async function mudarLuz1() {
             alert(data.message)
         else {
             if (data.message === "ok") {
-                luz_divisao1_status = false;
-                //document.getElementById('divisao1').innerText = "Ativar luz divisao1";
-                document.getElementById('divisao1').checked = false;
+                eval("luz_" + divisao + "_status = false;");
+                document.getElementById(divisao).checked = false;
             }
         }
 
@@ -209,7 +208,7 @@ async function mudarLuz1() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                divisao: "divisao1"
+                divisao: divisao
             })
         });
         const data = await res.json();
@@ -224,78 +223,14 @@ async function mudarLuz1() {
             alert(data.message)
         else {
             if (data.message === "ok") {
-                luz_divisao1_status = true;
-                //document.getElementById('divisao1').innerText = "Desativar luz divisao1";
-                document.getElementById('divisao1').checked = true;
-            }
-        }
-    }
-}
-
-async function mudarLuz2() {
-    if (!logado)
-        return;
-
-    if (luz_divisao2_status) {
-        const res = await fetch('https://localhost:3000/commands/disableLight', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                divisao: "divisao2"
-            })
-        });
-        const data = await res.json();
-
-        if (res.status === 401) {
-            logado = false;
-            alert(data.message)
-            return;
-        }
-
-        if (res.status === 400)
-            alert(data.message)
-        else {
-            if (data.message === "ok") {
-                luz_divisao2_status = false;
-                //document.getElementById('divisao2').innerText = "Ativar luz divisao2";
-                document.getElementById('divisao2').checked = false;
-            }
-        }
-
-    } else {
-        const res = await fetch('https://localhost:3000/commands/activateLight', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                divisao: "divisao2"
-            })
-        });
-        const data = await res.json();
-
-        if (res.status === 401) {
-            logado = false;
-            alert(data.message)
-            return;
-        }
-
-        if (res.status === 400)
-            alert(data.message)
-        else {
-            if (data.message === "ok") {
-                luz_divisao2_status = true;
-                //document.getElementById('divisao2').innerText = "Desativar luz divisao2";
-                document.getElementById('divisao2').checked = true;
+                eval("luz_" + divisao + "_status = true;");
+                document.getElementById(divisao).checked = true;
             }
         }
     }
 }
 
 let janela1_status = false;
-let janela2_status = false;
 async function getWindows() {
     const res = await fetch('https://localhost:3000/data_retrieval/getWindows');
     const data = await res.json();
@@ -323,18 +258,18 @@ async function getWindows() {
     }
 }
 
-async function mudarJanela1() {
+async function changeWindow(janela) {
     if (!logado)
         return;
 
-    if (janela1_status) {
+    if (eval(janela + "_status")) {
         const res = await fetch('https://localhost:3000/commands/disableWindow', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                janela: "janela1"
+                janela: janela
             })
         });
         const data = await res.json();
@@ -349,8 +284,8 @@ async function mudarJanela1() {
             alert(data.message)
         else {
             if (data.message === "ok") {
-                janela1_status = false;
-                document.getElementById('janela1').innerText = "Abrir janela1";
+                eval(janela + "_status = false;")
+                document.getElementById(janela).checked = false;
             }
         }
 
@@ -361,7 +296,7 @@ async function mudarJanela1() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                janela: "janela1"
+                janela: janela
             })
         });
         const data = await res.json();
@@ -376,68 +311,8 @@ async function mudarJanela1() {
             alert(data.message)
         else {
             if (data.message === "ok") {
-                janela1_status = true;
-                document.getElementById('janela1').innerText = "Fechar janela1";
-            }
-        }
-    }
-}
-
-async function mudarJanela2() {
-    if (!logado)
-        return;
-
-    if (janela2_status) {
-        const res = await fetch('https://localhost:3000/commands/disableWindow', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                janela: "janela2"
-            })
-        });
-        const data = await res.json();
-
-        if (res.status === 401) {
-            logado = false;
-            alert(data.message)
-            return;
-        }
-
-        if (res.status === 400)
-            alert(data.message)
-        else {
-            if (data.message === "ok") {
-                janela2_status = false;
-                document.getElementById('janela2').innerText = "Abrir janela2";
-            }
-        }
-
-    } else {
-        const res = await fetch('https://localhost:3000/commands/activateWindow', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                janela: "janela2"
-            })
-        });
-        const data = await res.json();
-
-        if (res.status === 401) {
-            logado = false;
-            alert(data.message)
-            return;
-        }
-
-        if (res.status === 400)
-            alert(data.message)
-        else {
-            if (data.message === "ok") {
-                janela2_status = true;
-                document.getElementById('janela2').innerText = "Fechar janela2";
+                eval(janela + "_status = true;");
+                document.getElementById(janela).checked = true;
             }
         }
     }
