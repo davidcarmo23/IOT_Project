@@ -66,7 +66,7 @@ server.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
 // MQTT Mosquitto
 const mqtt = require('mqtt');
-const mqttServer = 'mqtt://127.0.0.1:1883';
+const {mqttServer} = require("./env")
 const mqttUser = 'admin';
 const mqttPassword = 'admin';
 
@@ -78,7 +78,7 @@ const client = mqtt.connect(mqttServer);
 const temperatureTopic = '+/temperatura';
 const luminosidadeTopic = '+/luminosidade';
 const movimentoTopic = '+/movimento';
-const luzesTopic = '+/luzes';
+const luzesTopic = '+/lights';
 const fogoTopic = '+/fogo';
 const humidadeTopic = '+/humidade';
 client.on("connect", function () {

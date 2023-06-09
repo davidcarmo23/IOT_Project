@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
+const verifyToken = require('./verifyToken');
+const {mqttServer} =  require("../../env")
+const client = mqtt.connect(mqttServer);
 
 // Desativar alarme
-router.get('/disableAlarm', async (req, res) => {
+router.get('/disableAlarm',   async (req, res) => {
   try {
     const user_uid = req.cookies.userID;
     if (user_uid == null)
@@ -21,7 +24,7 @@ router.get('/disableAlarm', async (req, res) => {
       })
 
       // TODO: desativar alarme no arduino
-
+      client.publish("alarm", "off");
       return res.status(200).json({ message: "ok" })
     }
 
@@ -31,7 +34,7 @@ router.get('/disableAlarm', async (req, res) => {
 });
 
 // Ativar alarme
-router.get('/activateAlarm', async (req, res) => {
+router.get('/activateAlarm',  async (req, res) => {
   try {
     const user_uid = req.cookies.userID;
     if (user_uid == null)
@@ -49,7 +52,7 @@ router.get('/activateAlarm', async (req, res) => {
       })
 
       // TODO: ativar alarme no arduino
-
+      client.publish("alarm", "on");
       return res.status(200).json({ message: "ok" })
     }
 
@@ -59,7 +62,7 @@ router.get('/activateAlarm', async (req, res) => {
 });
 
 // Desativar luz
-router.post('/disableLight', async (req, res) => {
+router.post('/disableLight',  async (req, res) => {
   try {
     const user_uid = req.cookies.userID;
     if (user_uid == null)
@@ -78,7 +81,7 @@ router.post('/disableLight', async (req, res) => {
       })
 
       // TODO: desativar luz no arduino
-
+      client.publish(path, "off");
       return res.status(200).json({ message: "ok" })
     }
 
@@ -88,7 +91,7 @@ router.post('/disableLight', async (req, res) => {
 });
 
 // Ativar luz
-router.post('/activateLight', async (req, res) => {
+router.post('/activateLight',  async (req, res) => {
   try {
     const user_uid = req.cookies.userID;
     if (user_uid == null)
@@ -107,7 +110,7 @@ router.post('/activateLight', async (req, res) => {
       })
 
       // TODO: ativar luz no arduino
-
+      client.publish(path, "on");
       return res.status(200).json({ message: "ok" })
     }
 
@@ -117,7 +120,7 @@ router.post('/activateLight', async (req, res) => {
 });
 
 // Desativar janela
-router.post('/disableWindow', async (req, res) => {
+router.post('/disableWindow',  async (req, res) => {
   try {
     const user_uid = req.cookies.userID;
     if (user_uid == null)
@@ -136,7 +139,7 @@ router.post('/disableWindow', async (req, res) => {
       })
 
       // TODO: desativar janela no arduino
-
+      client.publish(path, "close");
       return res.status(200).json({ message: "ok" })
     }
 
@@ -146,7 +149,7 @@ router.post('/disableWindow', async (req, res) => {
 });
 
 // Ativar janela
-router.post('/activateWindow', async (req, res) => {
+router.post('/activateWindow',  async (req, res) => {
   try {
     const user_uid = req.cookies.userID;
     if (user_uid == null)
@@ -165,7 +168,7 @@ router.post('/activateWindow', async (req, res) => {
       })
 
       // TODO: ativar janela no arduino
-
+      client.publish(path, "open");
       return res.status(200).json({ message: "ok" })
     }
 
