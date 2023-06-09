@@ -15,11 +15,11 @@
   <div class="dashboard_wrapper">
     <div class="layout">
       <div class="first">
-        <h1 id="current-time" class="clock"></h1>
+        <h1 id="current-time" class="clock" style="padding-left: 7px;"></h1>
         <div>
           <img src="Line.png" loading="lazy" width="200" alt=""class="line">
           <div class="temperature">
-            <h1 id="last-temp" class="temperature2">°</h1>
+            <h1 id="last-temp" class="temperature2" style="margin-top: 20px; margin-bottom: 20px">°</h1>
           </div><img src="Line.png" loading="lazy" width="200" alt=""class="line">
           <div class="undertemperature">
             <div class="undertemperature2">
@@ -160,10 +160,13 @@
       <div class="div-block-22">
         <div class="alert-container">
           <h1 class="alert" style="margin-top: 0px;">Lock House</h1>
-          <label class="switch" style="right: 20px;">
-            <input type="checkbox" onchange="lockHouse()">
-            <span class="slider round"></span>
-          </label>
+          
+
+          <button id="addButton" class="but" onclick="lockHouse()" style="background-color: white; margin-top: 0px; margin-right: 20px;font-size: 15px;">
+            <span class="icon"></span>
+          </button>
+          
+
         </div>
       </div>
     </div>
