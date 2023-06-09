@@ -10,10 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
-
-
-
-
 <body>
   <div class="dashboard_wrapper">
     <div class="layout">
@@ -30,7 +26,7 @@
             <div class="switch-container">
               <h3 class="lights">Light 1</h3>
               <label class="switch">
-                <input type="checkbox">
+                <input type="checkbox" id="divisao1" onchange="mudarLuz1()">
                 <span class="slider round"></span>
               </label>
             </div>
@@ -38,7 +34,7 @@
             <div class="switch-container">
               <h3 class="lights">Light 2</h3>
               <label class="switch">
-                <input type="checkbox">
+                <input type="checkbox" id="divisao2" onchange="mudarLuz2()">
                 <span class="slider round"></span>
               </label>
             </div>
@@ -177,9 +173,6 @@
   <h2>Último fogo ocorreu a: </h2>
   <p id="last-fire"></p>
 
-  <button id="divisao1" onclick="mudarLuz1()"></button>
-  <button id="divisao2" onclick="mudarLuz2()"></button>
-  <br>
   <button id="janela1" onclick="mudarJanela1()"></button>
   <button id="janela2" onclick="mudarJanela2()"></button>
   

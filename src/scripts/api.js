@@ -147,20 +147,24 @@ async function getLights() {
         alert(data.message)
     else {
         if (data.divisao1) {
-            document.getElementById('divisao1').innerText = "Desativar luz divisao1";
+            //document.getElementById('divisao1').innerText = "Desativar luz divisao1";
+            document.getElementById('divisao1').checked = true;
             luz_divisao1_status = true;
         }
         else {
-            document.getElementById('divisao1').innerText = "Ativar luz divisao1";
+            //document.getElementById('divisao1').innerText = "Ativar luz divisao1";
+            document.getElementById('divisao1').checked = false;
             luz_divisao1_status = false;
         }
 
         if (data.divisao2) {
-            document.getElementById('divisao2').innerText = "Desativar luz divisao2";
+            //document.getElementById('divisao2').innerText = "Desativar luz divisao2";
+            document.getElementById('divisao2').checked = true;
             luz_divisao2_status = true;
         }
         else {
-            document.getElementById('divisao2').innerText = "Ativar luz divisao2";
+            //document.getElementById('divisao2').innerText = "Ativar luz divisao2";
+            document.getElementById('divisao2').checked = false;
             luz_divisao2_status = false;
         }
     }
@@ -193,7 +197,8 @@ async function mudarLuz1() {
         else {
             if (data.message === "ok") {
                 luz_divisao1_status = false;
-                document.getElementById('divisao1').innerText = "Ativar luz divisao1";
+                //document.getElementById('divisao1').innerText = "Ativar luz divisao1";
+                document.getElementById('divisao1').checked = false;
             }
         }
 
@@ -220,7 +225,8 @@ async function mudarLuz1() {
         else {
             if (data.message === "ok") {
                 luz_divisao1_status = true;
-                document.getElementById('divisao1').innerText = "Desativar luz divisao1";
+                //document.getElementById('divisao1').innerText = "Desativar luz divisao1";
+                document.getElementById('divisao1').checked = true;
             }
         }
     }
@@ -253,7 +259,8 @@ async function mudarLuz2() {
         else {
             if (data.message === "ok") {
                 luz_divisao2_status = false;
-                document.getElementById('divisao2').innerText = "Ativar luz divisao2";
+                //document.getElementById('divisao2').innerText = "Ativar luz divisao2";
+                document.getElementById('divisao2').checked = false;
             }
         }
 
@@ -280,7 +287,8 @@ async function mudarLuz2() {
         else {
             if (data.message === "ok") {
                 luz_divisao2_status = true;
-                document.getElementById('divisao2').innerText = "Desativar luz divisao2";
+                //document.getElementById('divisao2').innerText = "Desativar luz divisao2";
+                document.getElementById('divisao2').checked = true;
             }
         }
     }
