@@ -235,21 +235,12 @@ async function getWindows() {
         alert(data.message)
     else {
         if (data.janela1) {
-            document.getElementById('janela1').innerText = "Fechar janela1";
+            document.getElementById('janela1').checked = true;
             janela1_status = true;
         }
         else {
-            document.getElementById('janela1').innerText = "Abrir janela1";
+            document.getElementById('janela1').checked = false;
             janela1_status = false;
-        }
-
-        if (data.janela2) {
-            document.getElementById('janela2').innerText = "Fechar janela2";
-            janela2_status = true;
-        }
-        else {
-            document.getElementById('janela2').innerText = "Abrir janela2";
-            janela2_status = false;
         }
     }
 }
@@ -310,6 +301,38 @@ async function changeWindow(janela) {
                 eval(janela + "_status = true;");
                 document.getElementById(janela).checked = true;
             }
+        }
+    }
+}
+
+async function lockHouse() {
+    if (!logado)
+        return;
+
+    const res = await fetch('https://localhost:3000/commands/lockHouse');
+    const data = await res.json();
+
+    if (res.status === 401) {
+        logado = false;
+        alert(data.message)
+        return;
+    }
+
+    if (res.status === 400)
+        alert(data.message)
+    else {
+        if (data.message === "ok") {
+            luz_divisao1_status = false;
+            luz_divisao2_status = false;
+            janela1_status = false;
+            alarme_status = true;
+
+            document.getElementById('divisao1').checked = false;
+            document.getElementById('divisao2').checked = false;
+            document.getElementById('janela1').checked = false;
+            document.getElementById('alarme').checked = true;
+
+            alert('House locked')
         }
     }
 }
