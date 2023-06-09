@@ -354,7 +354,7 @@ function graphTemperatura(array) {
                     label: 'Temperature',
                     data: array,
                     fill: false,
-                    borderColor: 'rgb(16, 36, 68)',
+                    borderColor: 'rgb(255, 77, 77)',
                     tension: 0.1
                 },
             ],
@@ -390,7 +390,7 @@ function graphHumidade(array) {
                     label: 'Humidity',
                     data: array,
                     fill: false,
-                    borderColor: 'rgb(16, 36, 68)',
+                    borderColor: 'rgb(70, 196, 242)',
                     tension: 0.1
                 },
             ],
@@ -426,7 +426,7 @@ function graphLuminosidade(array) {
                     label: 'Luminosity',
                     data: array,
                     fill: false,
-                    borderColor: 'rgb(16, 36, 68)',
+                    borderColor: 'rgb(243, 212, 15)',
                     tension: 0.1
                 },
             ],
