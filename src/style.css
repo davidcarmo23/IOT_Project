@@ -509,6 +509,7 @@
 	margin-left: 110px;
 	margin-right: 40px;
 	margin-top: 60px;
+	margin-bottom: 40px;
 }
 
 
@@ -585,4 +586,25 @@
   
   .slider.round:before {
 	border-radius: 50%;
+  }
+
+  .alert{
+	color: #fff;
+	text-align: left;
+	flex-direction: column;
+	flex: 0 auto;
+	order: 0;
+	align-self: center;
+	margin: 20px 20px -3px;
+	padding-top: 40px;
+	padding-bottom: 40px;
+	font-family: "Roboto", sans-serif;
+	font-size: 30px;
+	display: block;
+	margin-right: 10px;
+}
+
+.alert-container {
+	display: flex;
+	align-items: center;
   }
