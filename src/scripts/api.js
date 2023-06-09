@@ -14,7 +14,6 @@ async function getTemp() {
         alert(data.message)
     else {
         document.getElementById('last-temp').innerText = data.lastTemp;
-
         graphTemperatura(data.temperatura)
     }
 }
@@ -25,11 +24,8 @@ async function getHum() {
 
     if (res.status !== 200)
         alert(data.message)
-    else {
-        document.getElementById('last-hum').innerText = data.lastHum;
-
+    else
         graphHumidade(data.humidade)
-    }
 }
 
 async function getLum() {
@@ -38,11 +34,8 @@ async function getLum() {
 
     if (res.status !== 200)
         alert(data.message)
-    else {
-        document.getElementById('last-lum').innerText = data.lastLum;
-
+    else
         graphLuminosidade(data.luminosidade)
-    }
 }
 
 async function getFire() {
