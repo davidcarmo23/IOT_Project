@@ -488,6 +488,7 @@
 	align-items: center;
 	border: none;
 	outline: none;
+	white-space: nowrap;
 }
 
 .but .plus-sign {
@@ -602,9 +603,33 @@
 	font-size: 30px;
 	display: block;
 	margin-right: 10px;
+	white-space: nowrap;
 }
 
 .alert-container {
 	display: flex;
 	align-items: center;
+  }
+
+  .icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	background-color: #102444;
+	clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+	position: relative;
+	color: #ccc;
+	font-size: 16px;
+	margin: 0 auto;
+	white-space: nowrap;
+  }
+  
+  .icon::before {
+	content: "!";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
   }
