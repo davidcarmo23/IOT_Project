@@ -127,9 +127,7 @@ router.get('/logout', function (req, res) {
 router.get('/verifytoken', function (req, res) {
     try {
       const token = req.cookies.token;
-      if (!token){
-        return res.status(401).json({ error: 'Access denied' });
-      } 
+      if (!token) return res.status(401).json({ error: 'Access denied' });
     } catch (error) {
       res.status(400).json({ error: 'Error verifying token ' + error });
     }

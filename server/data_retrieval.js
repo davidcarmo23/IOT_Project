@@ -4,11 +4,9 @@ const admin = require('firebase-admin');
 const app = express();
 const cookieParser = require('cookie-parser')();
 const router = express.Router();
-const verifyToken = require('./verifyToken');
-
 
 // Ler temperatura da base de dados
-router.get('/getTemp',verifyToken , async (req, res) => {
+router.get('/getTemp', async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
       if (user_uid == null)
@@ -46,7 +44,7 @@ router.get('/getTemp',verifyToken , async (req, res) => {
   });
 
 // Ler humidade da base de dados
-router.get('/getHum',verifyToken , async (req, res) => {
+router.get('/getHum', async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
       if (user_uid == null)
@@ -84,7 +82,7 @@ router.get('/getHum',verifyToken , async (req, res) => {
   });
   
 // Ler luminosidade da base de dados
-router.get('/getLum',verifyToken , async (req, res) => {
+router.get('/getLum', async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
       if (user_uid == null)
@@ -122,7 +120,7 @@ router.get('/getLum',verifyToken , async (req, res) => {
   });
  
 // Ler última ocurrência de fogo da base de dados
-router.get('/getFire',verifyToken , async (req, res) => {
+router.get('/getFire', async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
       if (user_uid == null)
@@ -151,7 +149,7 @@ router.get('/getFire',verifyToken , async (req, res) => {
   });
  
 // Ler movimento da base de dados
-router.get('/getMov',verifyToken , async (req, res) => {
+router.get('/getMov', async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
       if (user_uid == null)
@@ -180,7 +178,7 @@ router.get('/getMov',verifyToken , async (req, res) => {
   });
   
 // Obter estado do alarme
-router.get('/getAlarm',verifyToken , async (req, res) => {
+router.get('/getAlarm', async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
       if (user_uid == null)
@@ -214,7 +212,7 @@ router.get('/getAlarm',verifyToken , async (req, res) => {
 
 
 // Obter estado das luzes
-router.get('/getLights',verifyToken , async (req, res) => {
+router.get('/getLights', async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
       if (user_uid == null)
@@ -249,7 +247,7 @@ router.get('/getLights',verifyToken , async (req, res) => {
   });
 
 // Obter estado das janelas
-router.get('/getWindows',verifyToken , async (req, res) => {
+router.get('/getWindows', async (req, res) => {
     try {
       const user_uid = req.cookies.userID;
       if (user_uid == null)

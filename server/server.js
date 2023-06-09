@@ -25,7 +25,6 @@ const port = 3000
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
 //para o css
 app.use(express.static(path.join(__dirname, '/../src'), {
   setHeaders: (res, filePath) => {
@@ -67,30 +66,32 @@ server.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
 // MQTT Mosquitto
 const mqtt = require('mqtt');
-const { mqttServer } = require('./env');
+const mqttServer = 'mqtt://127.0.0.1:1883';
 const mqttUser = 'admin';
 const mqttPassword = 'admin';
 
 
 const client = mqtt.connect(mqttServer);
 
-// Inicialização da Comunicação com o broker MQTT e subscrição aos tópicos
-const temperatureTopic = '+/temperatura'; //
-const luminosidadeTopic = '+/luminosidade';//
-const movimentoTopic = '+/movimento';//
-const luzesTopic = '+/light1';// --
-const luzes2Topic = '+/light2';// --
-const fogoTopic = '+/fogo';//
-const humidadeTopic = '+/humidade';//
-const alarmeTopic = '+/alarm';// --
 
+// Inicialização da Comunicação com o broker MQTT e subscrição aos tópicos
+const temperatureTopic = '+/temperatura';
+const luminosidadeTopic = '+/luminosidade';
+const movimentoTopic = '+/movimento';
+const luzesTopic = '+/luzes';
+const fogoTopic = '+/fogo';
+const humidadeTopic = '+/humidade';
 client.on("connect",function(){	
   console.log("connected");
-  client.subscribe(temperatureTopic, luminosidadeTopic, movimentoTopic, luzesTopic,luzes2Topic, fogoTopic, humidadeTopic, alarmeTopic);
+  client.subscribe(temperatureTopic, luminosidadeTopic, movimentoTopic, luzesTopic, fogoTopic, humidadeTopic);
   
 })
 
 client.on('message', function(topic, message, packet){
+
+  //arranjar maneira de passar o ip do cliente para o server 
+  //ou seja userid/temperatura
+
   const associated_user = topic.split('/')[0]
   const topic_ext = topic.split('/')[1]
   console.log(associated_user)
@@ -287,7 +288,7 @@ client.on('message', function(topic, message, packet){
           }
         
           // FEITO
-          if (topic_ext == "light1") {
+          if (topic_ext == "luzes") {
 
           try {
             var msg = Buffer.from(message).toString('utf8');
@@ -303,38 +304,7 @@ client.on('message', function(topic, message, packet){
                 // Inserir luzes pela primeira vez
                 const res = await databaseRef.update({
                   'luzes.divisao1': false,
-                })
-
-              } else {
-                // Atualiza divisao
-                const path = "luzes." + divisao;
-                const res = await databaseRef.update({
-                  [path]: estado
-                })
-              }
-
-
-            } catch (error) {
-              console.log("Error getting doc " + error);
-            }
-
-          }
-          if (topic_ext == "light2") {
-
-            try {
-              var msg = Buffer.from(message).toString('utf8');
-              var divisao = msg.split('/')[0];
-              var estado = (msg.split('/')[1] === 'true');
-
-              // Ler objeto
-              var databaseRef = db.collection('users').doc(uid);
-              const luzesDoc = await databaseRef.get();
-              const luzesObj = luzesDoc.data().luzes;
-
-              if (luzesObj == null) {
-                // Inserir luzes pela primeira vez
-                const res = await databaseRef.update({
-                  'luzes.divisao2': false,
+                  'luzes.divisao2': false
                 })
 
             } else {
@@ -353,7 +323,7 @@ client.on('message', function(topic, message, packet){
         }
 
           // FEITO
-          if (topic_ext == "windows") {
+          if (topic_ext == "janelas") {
 
           try {
             var msg = Buffer.from(message).toString('utf8');
