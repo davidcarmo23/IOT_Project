@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const {TOKEN_SECRET} =  require("../../env")
+const {TOKEN_SECRET} =  require("./env")
 
 const verifyToken=(req,res,next)=>{
     const token = req.headers["x-access-token"];
